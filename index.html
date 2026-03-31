@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MJSR Leave Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d1117; --paper: #f5f2eb; --cream: #ede9df; --snow: #faf9f6;
+    --accent: #1e4d2b; --accent-light: #2d7a43; --red: #c0392b; --red-light: #fdf0ef;
+    --amber: #b45309; --amber-light: #fffbeb; --blue: #1e3a5f; --blue-light: #eff6ff;
+    --border: #d8d2c5; --muted: #7a7469;
+    --shadow: 0 1px 3px rgba(13,17,23,0.08), 0 4px 16px rgba(13,17,23,0.06);
+    --shadow-lg: 0 8px 32px rgba(13,17,23,0.12);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+  header{background:var(--accent);color:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.18);}
+  .header-brand{display:flex;align-items:center;gap:12px;}
+  .header-logo{width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:-0.5px;}
+  .header-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;letter-spacing:-0.3px;}
+  .header-sub{font-size:11px;opacity:0.7;font-weight:300;}
+  .header-nav{display:flex;gap:4px;}
+  .nav-btn{padding:7px 16px;border:none;background:transparent;color:rgba(255,255,255,0.75);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-radius:6px;transition:all 0.15s;}
+  .nav-btn:hover{background:rgba(255,255,255,0.12);color:#fff;}
+  .nav-btn.active{background:rgba(255,255,255,0.2);color:#fff;}
+  .nav-btn.admin-btn{border:1px solid rgba(255,255,255,0.3);}
+  .nav-btn.admin-btn.unlocked{background:rgba(255,200,0,0.2);color:#ffe066;border-color:rgba(255,200,0,0.4);}
+  .main{max-width:1100px;margin:0 auto;padding:32px 24px;}
+  .tab-panel{display:none;animation:fadeIn 0.2s ease;}
+  .tab-panel.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .card{background:var(--snow);border:1px solid var(--border);border-radius:12px;padding:28px 32px;box-shadow:var(--shadow);}
+  .card+.card{margin-top:20px;}
+  .card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--ink);margin-bottom:6px;letter-spacing:-0.3px;}
+  .card-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+  .card.danger-card{border-color:#fca5a5;background:#fff8f8;}
+  .card.danger-card .card-title{color:var(--red);}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-group.full{grid-column:1/-1;}
+  label{font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+  select,input[type="text"],input[type="number"],input[type="date"],input[type="password"],textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--snow);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color 0.15s,box-shadow 0.15s;outline:none;-webkit-appearance:none;}
+  select:focus,input:focus,textarea:focus{border-color:var(--accent-light);box-shadow:0 0 0 3px rgba(45,122,67,0.12);}
+  textarea{resize:vertical;min-height:72px;}
+  .balance-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0 0;}
+  .balance-card{border-radius:10px;padding:16px 18px;border:1.5px solid transparent;transition:all 0.15s;}
+  .balance-card.annual{background:var(--blue-light);border-color:#bfdbfe;}
+  .balance-card.casual{background:#faf5ff;border-color:#e9d5ff;}
+  .balance-card.sick{background:var(--amber-light);border-color:#fde68a;}
+  .balance-card.special{background:#f0fdf4;border-color:#bbf7d0;}
+  .balance-card.negative{background:var(--red-light);border-color:#fecaca;}
+  .balance-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:4px;}
+  .balance-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;letter-spacing:-1px;}
+  .balance-value.negative{color:var(--red);}
+  .balance-unit{font-size:11px;color:var(--muted);margin-top:3px;}
+  .balance-warning{margin-top:8px;padding:6px 10px;background:var(--red-light);border:1px solid #fecaca;border-radius:6px;font-size:12px;color:var(--red);font-weight:500;display:flex;align-items:center;gap:6px;}
+  .emp-strip{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--cream);border-radius:8px;border:1px solid var(--border);margin-bottom:20px;}
+  .emp-avatar{width:40px;height:40px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;flex-shrink:0;}
+  .emp-info-name{font-weight:600;font-size:15px;}
+  .emp-info-meta{font-size:12px;color:var(--muted);}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;text-decoration:none;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent-light);transform:translateY(-1px);box-shadow:0 4px 12px rgba(30,77,43,0.25);}
+  .btn-primary:disabled{background:#9ca3af;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-outline{background:transparent;color:var(--ink);border:1.5px solid var(--border);}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-danger{background:var(--red);color:#fff;}
+  .btn-danger:hover{background:#a93226;transform:translateY(-1px);box-shadow:0 4px 12px rgba(192,57,43,0.3);}
+  .btn-danger:disabled{background:#9ca3af;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-amber{background:var(--amber);color:#fff;}
+  .btn-amber:hover{background:#a0470a;transform:translateY(-1px);}
+  .btn-amber:disabled{background:#9ca3af;cursor:not-allowed;transform:none;}
+  .btn-sm{padding:7px 14px;font-size:13px;}
+  .btn-row{display:flex;gap:10px;align-items:center;margin-top:24px;flex-wrap:wrap;}
+  .alert{padding:14px 18px;border-radius:8px;font-size:14px;font-weight:500;display:flex;align-items:flex-start;gap:10px;margin-top:16px;}
+  .alert-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .alert-success{background:#f0fdf4;border:1px solid #86efac;color:#15803d;}
+  .alert-error{background:var(--red-light);border:1px solid #fca5a5;color:var(--red);}
+  .alert-info{background:var(--blue-light);border:1px solid #bfdbfe;color:var(--blue);}
+  .alert-warning{background:var(--amber-light);border:1px solid #fde68a;color:var(--amber);}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+  .stat-card{background:var(--snow);border:1px solid var(--border);border-radius:10px;padding:20px;}
+  .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);font-weight:600;margin-bottom:8px;}
+  .stat-value{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1.5px;line-height:1;}
+  .stat-value.green{color:var(--accent);}
+  .stat-value.red{color:var(--red);}
+  .stat-value.amber{color:var(--amber);}
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;}
+  td{padding:12px 14px;border-bottom:1px solid var(--cream);font-size:13px;vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--cream);}
+  tr.voided td{opacity:0.5;text-decoration:line-through;}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge-annual{background:var(--blue-light);color:var(--blue);}
+  .badge-casual{background:#faf5ff;color:#6b21a8;}
+  .badge-sick{background:var(--amber-light);color:var(--amber);}
+  .badge-special{background:#f0fdf4;color:#15803d;}
+  .badge-approved{background:#f0fdf4;color:#15803d;}
+  .badge-adjustment{background:var(--amber-light);color:var(--amber);}
+  .badge-accrual{background:#f0fdf4;color:#15803d;}
+  .badge-voided{background:var(--red-light);color:var(--red);}
+  .badge-void-reversal{background:#fdf4ff;color:#6b21a8;}
+  .badge-neg{background:var(--red-light);color:var(--red);}
+  .search-wrap{position:relative;margin-bottom:20px;}
+  .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;}
+  .search-input{padding-left:36px !important;}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .empty{text-align:center;padding:48px 24px;color:var(--muted);}
+  .empty-icon{font-size:40px;margin-bottom:12px;}
+  .empty-text{font-size:14px;}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.5px;}
+  .date-chip{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .pin-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:420px;gap:20px;}
+  .pin-lock-icon{font-size:48px;margin-bottom:4px;}
+  .pin-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--ink);}
+  .pin-sub{font-size:14px;color:var(--muted);margin-top:-8px;}
+  .pin-input-wrap{display:flex;gap:10px;align-items:center;}
+  .pin-input{width:160px;text-align:center;font-size:20px;letter-spacing:8px;font-weight:700;padding:12px 16px;}
+  .pin-error{color:var(--red);font-size:13px;font-weight:500;margin-top:-8px;display:none;}
+  .admin-locked{display:none;}
+  .admin-unlocked-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:20px;font-size:13px;color:var(--amber);font-weight:500;}
+  .action-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid;transition:all 0.12s;font-family:'DM Sans',sans-serif;}
+  .action-btn-void{color:var(--red);border-color:#fca5a5;background:var(--red-light);}
+  .action-btn-void:hover{background:var(--red);color:#fff;}
+  .action-btn-disabled{color:var(--muted);border-color:var(--border);background:var(--cream);cursor:not-allowed;}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(13,17,23,0.5);display:flex;align-items:center;justify-content:center;z-index:999;animation:fadeIn 0.15s ease;}
+  .modal{background:var(--snow);border-radius:16px;padding:32px;width:100%;max-width:500px;box-shadow:var(--shadow-lg);position:relative;}
+  .confirm-dialog{background:var(--snow);border-radius:16px;padding:32px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);}
+  .confirm-icon{font-size:40px;margin-bottom:12px;text-align:center;}
+  .confirm-title{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;margin-bottom:8px;text-align:center;}
+  .confirm-msg{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;text-align:center;}
+  .confirm-btns{display:flex;gap:10px;justify-content:center;margin-top:20px;}
+  @media(max-width:768px){
+    header{padding:0 16px;}
+    .header-nav{display:none;}
+    .main{padding:20px 16px;}
+    .form-grid{grid-template-columns:1fr;}
+    .balance-grid{grid-template-columns:repeat(2,1fr);}
+    .stats-row{grid-template-columns:repeat(2,1fr);}
+    .card{padding:20px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <div class="header-logo">MJ</div>
+    <div>
+      <div class="header-title">Leave Tracker</div>
+      <div class="header-sub">Malam Jabba Ski Resort</div>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <button class="nav-btn active" onclick="switchTab('submit',this)">Submit Leave</button>
+    <button class="nav-btn" onclick="switchTab('history',this)">History</button>
+    <button class="nav-btn" onclick="switchTab('dashboard',this)">Dashboard</button>
+    <button class="nav-btn" onclick="switchTab('adjust',this)">Adjust Balances</button>
+    <button class="nav-btn admin-btn" id="adminNavBtn" onclick="switchTab('admin',this)">&#x1F512; Edit &amp; Void</button>
+  </nav>
+</header>
+
+<div class="main">
+
+  <!-- SUBMIT LEAVE -->
+  <div id="tab-submit" class="tab-panel active">
+    <div class="section-header"><div class="section-title">Submit Leave Request</div></div>
+    <div class="card">
+      <div class="card-title">Select Employee</div>
+      <div class="card-sub">Search and select the employee to apply leave for.</div>
+      <div class="search-wrap">
+        <span class="search-icon">&#x2315;</span>
+        <input type="text" id="empSearch" class="search-input" placeholder="Search by name or department&hellip;" oninput="filterEmployees()">
+      </div>
+      <select id="empSelect" size="6" style="height:auto;padding:0;" onchange="onEmployeeSelect()">
+        <option value="" disabled selected>Loading employees&hellip;</option>
+      </select>
+    </div>
+    <div id="empDetailSection" style="display:none;">
+      <div class="card" style="margin-top:20px;">
+        <div id="empStrip"></div>
+        <div class="card-title">Current Leave Balances</div>
+        <div id="balanceDisplay" class="balance-grid"></div>
+        <div id="balanceWarnings"></div>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title">Leave Request Details</div>
+        <div class="card-sub">All fields are required. The system will block submission if the balance is insufficient.</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Leave Type</label>
+            <select id="leaveType" onchange="onLeaveTypeChange()">
+              <option value="">Select leave type&hellip;</option>
+              <option value="Annual">Annual Leave</option>
+              <option value="Casual">Casual Leave</option>
+              <option value="Sick">Sick Leave</option>
+              <option value="Special">Special Occasion Leave</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Number of Days</label>
+            <input type="number" id="leaveDays" min="0.5" step="0.5" placeholder="e.g. 2" oninput="onDaysChange()">
+          </div>
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="startDate">
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" id="endDate">
+          </div>
+          <div class="form-group">
+            <label>Submitted By (Admin Name)</label>
+            <input type="text" id="submittedBy" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label>Notes / Reason (Optional)</label>
+            <input type="text" id="leaveNotes" placeholder="e.g. Medical appointment">
+          </div>
+        </div>
+        <div id="availableAfter" style="display:none;" class="alert alert-info">
+          <span class="alert-icon">&#x2139;</span>
+          <span id="availableAfterText"></span>
+        </div>
+        <div id="submitAlert"></div>
+        <div class="btn-row">
+          <button id="submitBtn" class="btn btn-primary" onclick="submitLeave()" disabled>Submit Leave Request</button>
+          <button class="btn btn-outline" onclick="resetForm()">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="tab-history" class="tab-panel">
+    <div class="section-header"><div class="section-title">Leave History</div></div>
+    <div class="card">
+      <div class="form-grid" style="margin-bottom:20px;">
+        <div class="form-group">
+          <label>Select Employee</label>
+          <select id="histEmpSelect" onchange="loadHistory()"><option value="">All Employees</option></select>
+        </div>
+        <div class="form-group">
+          <label>Filter by Leave Type</label>
+          <select id="histTypeFilter" onchange="filterHistory()">
+            <option value="">All Types</option>
+            <option value="Annual">Annual</option>
+            <option value="Casual">Casual</option>
+            <option value="Sick">Sick</option>
+            <option value="Special">Special</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Log ID</th><th>Date</th><th>Employee</th><th>Department</th><th>Type</th><th>Days</th><th>Start</th><th>End</th><th>Bal. Before</th><th>Bal. After</th><th>Status</th></tr></thead>
+          <tbody id="historyBody"><tr><td colspan="11"><div class="empty"><div class="empty-icon">&#x1F4CB;</div><div class="empty-text">Select an employee to view history.</div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard" class="tab-panel">
+    <div class="section-header">
+      <div class="section-title">Dashboard</div>
+      <button class="btn btn-outline btn-sm" onclick="loadDashboard()">&#x21BB; Refresh</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total Staff</div><div class="stat-value green" id="dTotalStaff">&#x2014;</div></div>
+      <div class="stat-card"><div class="stat-label">Negative Balances</div><div class="stat-value red" id="dNegCount">&#x2014;</div></div>
+      <div class="stat-card"><div class="stat-label">Annual Days Used</div><div class="stat-value amber" id="dAnnualUsed">&#x2014;</div></div>
+      <div class="stat-card"><div class="stat-label">Casual Days Used</div><div class="stat-value" id="dCasualUsed">&#x2014;</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">&#x26A0; Negative Balance Alerts</div>
+      <div class="card-sub">Employees where any leave type has gone negative. Submissions for these employees are blocked.</div>
+      <div id="negBalTable"><div class="empty"><div class="empty-icon">&#x2713;</div><div class="empty-text">Loading&hellip;</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Submissions</div>
+      <div id="recentTable"><div class="empty"><div class="empty-icon">&#x1F4CB;</div><div class="empty-text">Loading&hellip;</div></div></div>
+    </div>
+  </div>
+
+  <!-- ADJUST BALANCES -->
+  <div id="tab-adjust" class="tab-panel">
+    <div class="section-header"><div class="section-title">Adjust Employee Balances</div></div>
+    <div class="card">
+      <div class="card-title">Admin Balance Adjustment</div>
+      <div class="card-sub">Use this to manually correct balances, apply monthly accruals, or update from the existing Excel tracker. All adjustments are logged.</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Employee</label>
+          <select id="adjEmpSelect" onchange="loadAdjBalance()"><option value="">Select employee&hellip;</option></select>
+        </div>
+        <div class="form-group">
+          <label>Leave Type</label>
+          <select id="adjLeaveType" onchange="loadAdjBalance()">
+            <option value="">Select type&hellip;</option>
+            <option value="Annual">Annual Leave</option>
+            <option value="Casual">Casual Leave</option>
+            <option value="Sick">Sick Leave</option>
+            <option value="Special">Special Occasion Leave</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Current Balance (days)</label>
+          <input type="number" id="adjCurrentBal" step="0.01" placeholder="&mdash;" readonly style="background:var(--cream);">
+        </div>
+        <div class="form-group">
+          <label>New Balance (days)</label>
+          <input type="number" id="adjNewBal" step="0.01" placeholder="Enter new balance">
+        </div>
+        <div class="form-group">
+          <label>Reason for Adjustment</label>
+          <input type="text" id="adjReason" placeholder="e.g. Monthly accrual Jan 2026">
+        </div>
+        <div class="form-group">
+          <label>Admin Name</label>
+          <input type="text" id="adjAdmin" placeholder="Your name">
+        </div>
+      </div>
+      <div id="adjAlert"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="submitAdjustment()">Apply Adjustment</button>
+        <button class="btn btn-outline" onclick="resetAdj()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT & VOID (PIN PROTECTED) -->
+  <div id="tab-admin" class="tab-panel">
+    <div class="section-header"><div class="section-title">&#x1F512; Edit &amp; Void</div></div>
+
+    <!-- PIN SCREEN -->
+    <div id="pinScreen" class="card">
+      <div class="pin-overlay">
+        <div class="pin-lock-icon">&#x1F510;</div>
+        <div class="pin-title">Admin Access Required</div>
+        <div class="pin-sub">Enter your PIN to access Edit &amp; Void functions</div>
+        <div class="pin-input-wrap">
+          <input type="password" id="pinInput" class="pin-input" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')checkPin()">
+          <button class="btn btn-primary" onclick="checkPin()">Unlock</button>
+        </div>
+        <div class="pin-error" id="pinError">Incorrect PIN. Please try again.</div>
+      </div>
+    </div>
+
+    <!-- ADMIN CONTENT -->
+    <div id="adminContent" class="admin-locked">
+      <div class="admin-unlocked-bar">
+        &#x1F513; Admin mode active &nbsp;&middot;&nbsp; All actions are logged with timestamps
+        <button class="btn btn-outline btn-sm" style="margin-left:auto;" onclick="lockAdmin()">Lock</button>
+      </div>
+
+      <!-- EDIT BALANCE -->
+      <div class="card">
+        <div class="card-title">Edit Individual Leave Balance</div>
+        <div class="card-sub">Directly correct a specific leave balance when an error is found. The old balance, new balance and reason are all logged automatically.</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Employee</label>
+            <select id="editEmpSelect" onchange="loadEditBalance()"><option value="">Select employee&hellip;</option></select>
+          </div>
+          <div class="form-group">
+            <label>Leave Type to Edit</label>
+            <select id="editLeaveType" onchange="loadEditBalance()">
+              <option value="">Select type&hellip;</option>
+              <option value="Annual">Annual Leave</option>
+              <option value="Casual">Casual Leave</option>
+              <option value="Sick">Sick Leave</option>
+              <option value="Special">Special Occasion Leave</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Current Balance (days)</label>
+            <input type="number" id="editCurrentBal" step="0.01" placeholder="&mdash;" readonly style="background:var(--cream);">
+          </div>
+          <div class="form-group">
+            <label>Corrected Balance (days)</label>
+            <input type="number" id="editNewBal" step="0.01" placeholder="Enter corrected balance" oninput="updateEditPreview()">
+          </div>
+          <div class="form-group full">
+            <label>Reason for Edit (required)</label>
+            <input type="text" id="editReason" placeholder="e.g. Data entry error &mdash; Annual balance was over-deducted in March">
+          </div>
+          <div class="form-group">
+            <label>Authorised By</label>
+            <input type="text" id="editAdmin" placeholder="Your name">
+          </div>
+        </div>
+        <div id="editPreview" style="display:none;" class="alert alert-warning">
+          <span class="alert-icon">&#x26A0;</span>
+          <span id="editPreviewText"></span>
+        </div>
+        <div id="editAlert"></div>
+        <div class="btn-row">
+          <button class="btn btn-amber" id="editSaveBtn" onclick="submitEdit()" disabled>Save Correction</button>
+          <button class="btn btn-outline" onclick="resetEdit()">Reset</button>
+        </div>
+      </div>
+
+      <!-- VOID ENTRY -->
+      <div class="card danger-card" style="margin-top:20px;">
+        <div class="card-title">Void a Leave Entry</div>
+        <div class="card-sub">Find a leave entry and void it. The days are added back to the employee's balance and a reversal entry is created in the log. Only entries with "Approved" status can be voided.</div>
+        <div class="form-grid" style="margin-bottom:20px;">
+          <div class="form-group">
+            <label>Select Employee</label>
+            <select id="voidEmpSelect" onchange="loadVoidLog()"><option value="">Select employee&hellip;</option></select>
+          </div>
+          <div class="form-group">
+            <label>Filter by Leave Type</label>
+            <select id="voidTypeFilter" onchange="filterVoidLog()">
+              <option value="">All Types</option>
+              <option value="Annual">Annual</option>
+              <option value="Casual">Casual</option>
+              <option value="Sick">Sick</option>
+              <option value="Special">Special</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Log ID</th><th>Date</th><th>Type</th><th>Days</th><th>Start</th><th>End</th><th>Bal. Before</th><th>Bal. After</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="voidLogBody"><tr><td colspan="10"><div class="empty"><div class="empty-icon">&#x1F50D;</div><div class="empty-text">Select an employee to view their leave entries.</div></div></td></tr></tbody>
+          </table>
+        </div>
+        <div id="voidAlert" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- VOID CONFIRM MODAL -->
+<div id="voidModal" class="modal-backdrop" style="display:none;">
+  <div class="confirm-dialog">
+    <div class="confirm-icon">&#x26A0;&#xFE0F;</div>
+    <div class="confirm-title">Confirm Void</div>
+    <div class="confirm-msg" id="voidConfirmMsg"></div>
+    <div class="form-group" style="margin-bottom:14px;text-align:left;">
+      <label>Voided By (your name)</label>
+      <input type="text" id="voidAdminName" placeholder="Your name">
+    </div>
+    <div class="form-group" style="text-align:left;">
+      <label>Reason for Void</label>
+      <input type="text" id="voidReason" placeholder="e.g. Submitted in error &mdash; wrong employee selected">
+    </div>
+    <div class="confirm-btns">
+      <button class="btn btn-danger" id="voidConfirmBtn" onclick="executeVoid()">Yes, Void Entry</button>
+      <button class="btn btn-outline" onclick="closeVoidModal()">Cancel</button>
+    </div>
+    <div id="voidModalAlert"></div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxZxScNo5ZKgsYAFVlVAS98iHaWWEoo-GFdO1wr5CPzUIHbwXn4UuQOnulZUW9IZUE1nw/exec';
+const ADMIN_PIN='1234';
+let allEmployees=[],currentEmployee=null,currentBalance=null,allHistory=[],voidLogAll=[],pendingVoidRow=null,adminUnlocked=false;
+
+document.addEventListener('DOMContentLoaded',()=>{
+  loadEmployees();
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('startDate').value=today;
+  document.getElementById('endDate').value=today;
+});
+
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(tab==='dashboard')loadDashboard();
+  if(['history','adjust','admin'].includes(tab))populateSecondarySelects();
+  if(tab==='admin'&&!adminUnlocked)setTimeout(()=>document.getElementById('pinInput').focus(),100);
+}
+
+function checkPin(){
+  if(document.getElementById('pinInput').value===ADMIN_PIN){
+    adminUnlocked=true;
+    document.getElementById('pinScreen').style.display='none';
+    document.getElementById('adminContent').style.display='block';
+    document.getElementById('adminContent').classList.remove('admin-locked');
+    document.getElementById('adminNavBtn').classList.add('unlocked');
+    document.getElementById('adminNavBtn').innerHTML='&#x1F513; Edit &amp; Void';
+    populateSecondarySelects();
+  } else {
+    document.getElementById('pinError').style.display='block';
+    document.getElementById('pinInput').value='';
+    setTimeout(()=>document.getElementById('pinError').style.display='none',3000);
+  }
+}
+
+function lockAdmin(){
+  adminUnlocked=false;
+  document.getElementById('pinScreen').style.display='block';
+  document.getElementById('adminContent').style.display='none';
+  document.getElementById('adminNavBtn').classList.remove('unlocked');
+  document.getElementById('adminNavBtn').innerHTML='&#x1F512; Edit &amp; Void';
+  document.getElementById('pinInput').value='';
+}
+
+async function api(payload){
+  try{const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});return await r.json();}
+  catch(e){return{success:false,message:'Network error: '+e.message};}
+}
+
+async function loadEmployees(){
+  const d=await api({action:'getEmployees'});
+  if(!d.success){showAlert('submitAlert','error','Failed to load employees: '+d.message);return;}
+  allEmployees=d.employees;renderEmployeeList(allEmployees);populateSecondarySelects();
+}
+
+function renderEmployeeList(list){
+  document.getElementById('empSelect').innerHTML=list.map(e=>
+    `<option value="${e.id}" data-name="${e.name}" data-desig="${e.designation}" data-dept="${e.department}">${e.name} &mdash; ${e.designation} (${e.department})</option>`).join('');
+}
+
+function filterEmployees(){
+  const q=document.getElementById('empSearch').value.toLowerCase();
+  renderEmployeeList(allEmployees.filter(e=>e.name.toLowerCase().includes(q)||e.department.toLowerCase().includes(q)||e.designation.toLowerCase().includes(q)));
+}
+
+async function onEmployeeSelect(){
+  const sel=document.getElementById('empSelect');
+  const opt=sel.options[sel.selectedIndex];
+  if(!opt||!opt.value)return;
+  currentEmployee={id:opt.value,name:opt.dataset.name,designation:opt.dataset.desig,department:opt.dataset.dept};
+  document.getElementById('empStrip').innerHTML=`<div class="emp-strip"><div class="emp-avatar">${currentEmployee.name.charAt(0)}</div><div><div class="emp-info-name">${currentEmployee.name}</div><div class="emp-info-meta">${currentEmployee.designation} &nbsp;&middot;&nbsp; ${currentEmployee.department}</div></div><div style="margin-left:auto;font-size:12px;color:var(--muted);">${currentEmployee.id}</div></div>`;
+  document.getElementById('empDetailSection').style.display='block';
+  document.getElementById('balanceDisplay').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);">Loading balances&hellip;</div>';
+  const data=await api({action:'getBalance',employeeId:currentEmployee.id});
+  if(!data.success){showAlert('submitAlert','error','Failed to load balance: '+data.message);return;}
+  currentBalance=data.balance;renderBalances(currentBalance);updateSubmitState();
+}
+
+function renderBalances(bal){
+  const types=['Annual','Casual','Sick','Special'],colours=['annual','casual','sick','special'],labels=['Annual Leave','Casual Leave','Sick Leave','Special Occasion'];
+  let html='',warnings='';
+  types.forEach((t,i)=>{
+    const v=parseFloat(bal[t])||0,isNeg=v<0;
+    html+=`<div class="balance-card ${colours[i]} ${isNeg?'negative':''}"><div class="balance-label">${labels[i]}</div><div class="balance-value ${isNeg?'negative':''}">${v.toFixed(2)}</div><div class="balance-unit">days remaining</div></div>`;
+    if(isNeg)warnings+=`<div class="balance-warning">&#x26A0; ${labels[i]} balance is negative (${v.toFixed(2)} days). New submissions blocked.</div>`;
+  });
+  document.getElementById('balanceDisplay').innerHTML=html;
+  document.getElementById('balanceWarnings').innerHTML=warnings;
+}
+
+function populateSecondarySelects(){
+  ['histEmpSelect','adjEmpSelect','editEmpSelect','voidEmpSelect'].forEach(id=>{
+    const sel=document.getElementById(id);if(!sel)return;
+    const cur=sel.value;
+    const def=id==='histEmpSelect'?'<option value="">All Employees</option>':'<option value="">Select employee&hellip;</option>';
+    sel.innerHTML=def+allEmployees.map(e=>`<option value="${e.id}">${e.name} (${e.department})</option>`).join('');
+    sel.value=cur;
+  });
+}
+
+function onLeaveTypeChange(){onDaysChange();updateSubmitState();}
+function onDaysChange(){
+  if(!currentBalance)return;
+  const type=document.getElementById('leaveType').value,days=parseFloat(document.getElementById('leaveDays').value);
+  const avail=document.getElementById('availableAfter');
+  if(!type||isNaN(days)||days<=0){avail.style.display='none';return;}
+  const bal=parseFloat(currentBalance[type])||0;
+  document.getElementById('availableAfterText').textContent=`${type} Leave: ${bal.toFixed(2)} available → ${(bal-days).toFixed(2)} remaining after this request.`;
+  avail.style.display='flex';updateSubmitState();
+}
+function updateSubmitState(){
+  const btn=document.getElementById('submitBtn');
+  if(!currentEmployee||!currentBalance){btn.disabled=true;return;}
+  const type=document.getElementById('leaveType').value,days=parseFloat(document.getElementById('leaveDays').value);
+  if(!type||isNaN(days)||days<=0){btn.disabled=true;return;}
+  btn.disabled=(parseFloat(currentBalance[type])||0)<=0||days>(parseFloat(currentBalance[type])||0);
+}
+
+async function submitLeave(){
+  const btn=document.getElementById('submitBtn');
+  const type=document.getElementById('leaveType').value,days=parseFloat(document.getElementById('leaveDays').value);
+  const startDate=document.getElementById('startDate').value,endDate=document.getElementById('endDate').value;
+  const submittedBy=document.getElementById('submittedBy').value.trim(),notes=document.getElementById('leaveNotes').value.trim();
+  if(!type||isNaN(days)||days<=0||!startDate||!endDate||!submittedBy){showAlert('submitAlert','error','Please fill in all required fields.');return;}
+  if(new Date(endDate)<new Date(startDate)){showAlert('submitAlert','error','End date cannot be before start date.');return;}
+  btn.innerHTML='<span class="spinner"></span> Submitting&hellip;';btn.disabled=true;
+  const res=await api({action:'submitLeave',employeeId:currentEmployee.id,leaveType:type,days,startDate,endDate,submittedBy,notes});
+  btn.innerHTML='Submit Leave Request';
+  if(res.success){
+    showAlert('submitAlert','success',`&#x2713; ${res.message} | Log ID: ${res.logId} | Balance: ${res.balanceBefore.toFixed(2)} → ${res.balanceAfter.toFixed(2)} days`);
+    currentBalance[type]=res.balanceAfter;renderBalances(currentBalance);
+    document.getElementById('leaveDays').value='';document.getElementById('leaveType').value='';
+    document.getElementById('availableAfter').style.display='none';updateSubmitState();
+  } else {showAlert('submitAlert','error','&#x2717; '+res.message);btn.disabled=false;}
+}
+
+function resetForm(){
+  document.getElementById('empSelect').selectedIndex=-1;document.getElementById('empSearch').value='';
+  document.getElementById('empDetailSection').style.display='none';document.getElementById('submitAlert').innerHTML='';
+  ['leaveType','leaveDays','leaveNotes','submittedBy'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('availableAfter').style.display='none';
+  currentEmployee=null;currentBalance=null;renderEmployeeList(allEmployees);
+}
+
+async function loadHistory(){
+  const empId=document.getElementById('histEmpSelect').value;
+  const tbody=document.getElementById('historyBody');
+  tbody.innerHTML='<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--muted);">Loading&hellip;</td></tr>';
+  const res=await api({action:'getHistory',employeeId:empId||''});
+  if(!res.success){tbody.innerHTML='<tr><td colspan="11">Error loading history.</td></tr>';return;}
+  allHistory=res.history;renderHistory(allHistory);
+}
+function filterHistory(){const type=document.getElementById('histTypeFilter').value;renderHistory(type?allHistory.filter(h=>h['Leave_Type']===type):allHistory);}
+function renderHistory(rows){
+  const tbody=document.getElementById('historyBody');
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="11"><div class="empty"><div class="empty-icon">&#x1F4CB;</div><div class="empty-text">No records found.</div></div></td></tr>';return;}
+  tbody.innerHTML=rows.map(r=>{
+    const tc=(r['Leave_Type']||'').toLowerCase(),sc=(r['Status']||'').toLowerCase().replace(/\s/g,'-');
+    const date=r['Timestamp']?new Date(r['Timestamp']).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'&mdash;';
+    const isVoided=(r['Status']||'').toLowerCase().includes('void');
+    return `<tr class="${isVoided?'voided':''}"><td><code style="font-size:11px;">${r['Log_ID']||'&mdash;'}</code></td><td class="date-chip">${date}</td><td><strong>${r['Employee_Name']||'&mdash;'}</strong></td><td>${r['Department']||'&mdash;'}</td><td><span class="badge badge-${tc}">${r['Leave_Type']||'&mdash;'}</span></td><td><strong>${parseFloat(r['Days_Requested']||0).toFixed(1)}</strong></td><td class="date-chip">${r['Start_Date']||'&mdash;'}</td><td class="date-chip">${r['End_Date']||'&mdash;'}</td><td>${parseFloat(r['Balance_Before']||0).toFixed(2)}</td><td><strong>${parseFloat(r['Balance_After']||0).toFixed(2)}</strong></td><td><span class="badge badge-${sc}">${r['Status']||'&mdash;'}</span></td></tr>`;
+  }).join('');
+}
+
+async function loadDashboard(){
+  ['dTotalStaff','dNegCount','dAnnualUsed','dCasualUsed'].forEach(id=>document.getElementById(id).textContent='&hellip;');
+  const res=await api({action:'getDashboard'});if(!res.success)return;const s=res.stats;
+  document.getElementById('dTotalStaff').textContent=s.totalEmployees;
+  document.getElementById('dNegCount').textContent=s.negativeBalances.length;
+  document.getElementById('dAnnualUsed').textContent=s.leaveTypeTotals.Annual.toFixed(1);
+  document.getElementById('dCasualUsed').textContent=s.leaveTypeTotals.Casual.toFixed(1);
+  const negDiv=document.getElementById('negBalTable');
+  negDiv.innerHTML=!s.negativeBalances.length?'<div class="empty"><div class="empty-icon">&#x2713;</div><div class="empty-text">No negative balances detected.</div></div>':`<div class="table-wrap"><table><thead><tr><th>Employee</th><th>Department</th><th>Affected Leave Types</th></tr></thead><tbody>${s.negativeBalances.map(e=>`<tr><td><strong>${e.name}</strong></td><td>${e.dept}</td><td>${e.types.map(t=>`<span class="badge badge-neg">${t}</span>`).join(' ')}</td></tr>`).join('')}</tbody></table></div>`;
+  const recDiv=document.getElementById('recentTable');
+  recDiv.innerHTML=!s.recentSubmissions.length?'<div class="empty"><div class="empty-icon">&#x1F4CB;</div><div class="empty-text">No submissions yet.</div></div>':`<div class="table-wrap"><table><thead><tr><th>Log ID</th><th>Date</th><th>Employee</th><th>Dept</th><th>Type</th><th>Days</th><th>Status</th></tr></thead><tbody>${s.recentSubmissions.map(r=>{const tc=(r.type||'').toLowerCase(),sc=(r.status||'').toLowerCase().replace(/\s/g,'-'),d=r.date?new Date(r.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}):'&mdash;';return`<tr><td><code style="font-size:11px;">${r.logId}</code></td><td class="date-chip">${d}</td><td>${r.name}</td><td>${r.dept}</td><td><span class="badge badge-${tc}">${r.type}</span></td><td>${parseFloat(r.days||0).toFixed(1)}</td><td><span class="badge badge-${sc}">${r.status}</span></td></tr>`;}).join('')}</tbody></table></div>`;
+}
+
+async function loadAdjBalance(){
+  const empId=document.getElementById('adjEmpSelect').value,type=document.getElementById('adjLeaveType').value;
+  if(!empId||!type)return;
+  const res=await api({action:'getBalance',employeeId:empId});
+  if(res.success)document.getElementById('adjCurrentBal').value=parseFloat(res.balance[type]||0).toFixed(2);
+}
+async function submitAdjustment(){
+  const empId=document.getElementById('adjEmpSelect').value,type=document.getElementById('adjLeaveType').value;
+  const newBal=parseFloat(document.getElementById('adjNewBal').value),reason=document.getElementById('adjReason').value.trim(),admin=document.getElementById('adjAdmin').value.trim();
+  if(!empId||!type||isNaN(newBal)||!reason||!admin){showAlert('adjAlert','error','Please complete all fields before applying adjustment.');return;}
+  const res=await api({action:'updateBalance',employeeId:empId,leaveType:type,newBalance:newBal,reason,adminUser:admin});
+  showAlert('adjAlert',res.success?'success':'error',res.message);
+  if(res.success){document.getElementById('adjCurrentBal').value=newBal.toFixed(2);document.getElementById('adjNewBal').value='';document.getElementById('adjReason').value='';}
+}
+function resetAdj(){['adjEmpSelect','adjLeaveType','adjNewBal','adjReason','adjAdmin'].forEach(id=>document.getElementById(id).value='');document.getElementById('adjCurrentBal').value='';document.getElementById('adjAlert').innerHTML='';}
+
+async function loadEditBalance(){
+  const empId=document.getElementById('editEmpSelect').value,type=document.getElementById('editLeaveType').value;
+  document.getElementById('editNewBal').value='';document.getElementById('editPreview').style.display='none';document.getElementById('editSaveBtn').disabled=true;
+  if(!empId||!type)return;
+  const res=await api({action:'getBalance',employeeId:empId});
+  if(res.success)document.getElementById('editCurrentBal').value=parseFloat(res.balance[type]||0).toFixed(2);
+}
+function updateEditPreview(){
+  const cur=parseFloat(document.getElementById('editCurrentBal').value),nv=parseFloat(document.getElementById('editNewBal').value);
+  const btn=document.getElementById('editSaveBtn'),preview=document.getElementById('editPreview');
+  if(isNaN(cur)||isNaN(nv)){preview.style.display='none';btn.disabled=true;return;}
+  const diff=nv-cur,sign=diff>=0?'+':'';
+  document.getElementById('editPreviewText').textContent=`Balance will change from ${cur.toFixed(2)} → ${nv.toFixed(2)} days (${sign}${diff.toFixed(2)} days). Ensure the reason field is filled before saving.`;
+  preview.style.display='flex';btn.disabled=false;
+}
+async function submitEdit(){
+  const empId=document.getElementById('editEmpSelect').value,type=document.getElementById('editLeaveType').value;
+  const newBal=parseFloat(document.getElementById('editNewBal').value),reason=document.getElementById('editReason').value.trim(),admin=document.getElementById('editAdmin').value.trim();
+  if(!empId||!type||isNaN(newBal)||!reason||!admin){showAlert('editAlert','error','All fields are required before saving a correction.');return;}
+  const btn=document.getElementById('editSaveBtn');btn.innerHTML='<span class="spinner"></span> Saving&hellip;';btn.disabled=true;
+  const res=await api({action:'updateBalance',employeeId:empId,leaveType:type,newBalance:newBal,reason:'[EDIT CORRECTION] '+reason,adminUser:admin});
+  btn.innerHTML='Save Correction';
+  if(res.success){showAlert('editAlert','success','&#x2713; Balance corrected successfully. Entry logged.');document.getElementById('editCurrentBal').value=newBal.toFixed(2);document.getElementById('editNewBal').value='';document.getElementById('editReason').value='';document.getElementById('editPreview').style.display='none';}
+  else{showAlert('editAlert','error','&#x2717; '+res.message);btn.disabled=false;}
+}
+function resetEdit(){['editEmpSelect','editLeaveType','editNewBal','editReason','editAdmin'].forEach(id=>document.getElementById(id).value='');document.getElementById('editCurrentBal').value='';document.getElementById('editPreview').style.display='none';document.getElementById('editAlert').innerHTML='';document.getElementById('editSaveBtn').disabled=true;}
+
+async function loadVoidLog(){
+  const empId=document.getElementById('voidEmpSelect').value;
+  const tbody=document.getElementById('voidLogBody');
+  if(!empId){tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-icon">&#x1F50D;</div><div class="empty-text">Select an employee to view their leave entries.</div></div></td></tr>';return;}
+  tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--muted);">Loading&hellip;</td></tr>';
+  const res=await api({action:'getHistory',employeeId:empId});
+  if(!res.success){tbody.innerHTML='<tr><td colspan="10">Error loading entries.</td></tr>';return;}
+  voidLogAll=res.history;renderVoidLog(voidLogAll);
+}
+function filterVoidLog(){const type=document.getElementById('voidTypeFilter').value;renderVoidLog(type?voidLogAll.filter(r=>r['Leave_Type']===type):voidLogAll);}
+function renderVoidLog(rows){
+  const tbody=document.getElementById('voidLogBody');
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-icon">&#x1F4CB;</div><div class="empty-text">No entries found.</div></div></td></tr>';return;}
+  tbody.innerHTML=rows.map(r=>{
+    const tc=(r['Leave_Type']||'').toLowerCase(),status=r['Status']||'',sc=status.toLowerCase().replace(/\s/g,'-');
+    const date=r['Timestamp']?new Date(r['Timestamp']).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'&mdash;';
+    const isVoidable=status==='Approved'&&parseFloat(r['Days_Requested']||0)>0;
+    const isVoided=status.toLowerCase().includes('void');
+    const safeRow=JSON.stringify(r).replace(/'/g,"\'").replace(/"/g,"&quot;");
+    const actionBtn=isVoidable?`<button class="action-btn action-btn-void" onclick="openVoidModal(JSON.parse(this.dataset.row))" data-row="${safeRow}">Void</button>`:`<span class="action-btn action-btn-disabled">${isVoided?'Voided':'N/A'}</span>`;
+    return `<tr class="${isVoided?'voided':''}"><td><code style="font-size:11px;">${r['Log_ID']||'&mdash;'}</code></td><td class="date-chip">${date}</td><td><span class="badge badge-${tc}">${r['Leave_Type']||'&mdash;'}</span></td><td><strong>${parseFloat(r['Days_Requested']||0).toFixed(1)}</strong></td><td class="date-chip">${r['Start_Date']||'&mdash;'}</td><td class="date-chip">${r['End_Date']||'&mdash;'}</td><td>${parseFloat(r['Balance_Before']||0).toFixed(2)}</td><td><strong>${parseFloat(r['Balance_After']||0).toFixed(2)}</strong></td><td><span class="badge badge-${sc}">${status}</span></td><td>${actionBtn}</td></tr>`;
+  }).join('');
+}
+
+function openVoidModal(row){
+  pendingVoidRow=row;
+  const days=parseFloat(row['Days_Requested']||0).toFixed(1),type=row['Leave_Type'],name=row['Employee_Name'],logId=row['Log_ID'];
+  document.getElementById('voidConfirmMsg').textContent=`You are about to void ${type} Leave of ${days} day(s) for ${name} (Log ID: ${logId}). The ${days} day(s) will be added back to their ${type} balance and a reversal entry will be created in the log.`;
+  document.getElementById('voidAdminName').value='';document.getElementById('voidReason').value='';
+  document.getElementById('voidModalAlert').innerHTML='';document.getElementById('voidConfirmBtn').disabled=false;
+  document.getElementById('voidConfirmBtn').innerHTML='Yes, Void Entry';
+  document.getElementById('voidModal').style.display='flex';
+}
+function closeVoidModal(){document.getElementById('voidModal').style.display='none';pendingVoidRow=null;}
+async function executeVoid(){
+  const adminName=document.getElementById('voidAdminName').value.trim(),reason=document.getElementById('voidReason').value.trim();
+  if(!adminName||!reason){showAlert('voidModalAlert','error','Please enter your name and a reason before confirming.');return;}
+  const btn=document.getElementById('voidConfirmBtn');btn.innerHTML='<span class="spinner"></span> Processing&hellip;';btn.disabled=true;
+  const res=await api({action:'voidLeave',logId:pendingVoidRow['Log_ID'],employeeId:pendingVoidRow['Employee_ID'],leaveType:pendingVoidRow['Leave_Type'],daysToReverse:parseFloat(pendingVoidRow['Days_Requested']||0),adminUser:adminName,reason});
+  btn.innerHTML='Yes, Void Entry';
+  if(res.success){closeVoidModal();showAlert('voidAlert','success','&#x2713; '+res.message);loadVoidLog();}
+  else{showAlert('voidModalAlert','error','&#x2717; '+res.message);btn.disabled=false;}
+}
+
+function showAlert(id,type,msg){const icons={success:'&#x2713;',error:'&#x2717;',info:'&#x2139;',warning:'&#x26A0;'};document.getElementById(id).innerHTML=`<div class="alert alert-${type}"><span class="alert-icon">${icons[type]}</span><span>${msg}</span></div>`;}
+</script>
+</body>
+</html>
