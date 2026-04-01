@@ -463,7 +463,7 @@
 </div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxZxScNo5ZKgsYAFVlVAS98iHaWWEoo-GFdO1wr5CPzUIHbwXn4UuQOnulZUW9IZUE1nw/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbybU2ee__bYCfvONE0BxcH0q2_bNeInCyyGG-eD00xGUauPCf8pXAiUdoCB8pErwFKH/exec';
 const ADMIN_PIN='1234';
 let allEmployees=[],currentEmployee=null,currentBalance=null,allHistory=[],voidLogAll=[],pendingVoidRow=null,adminUnlocked=false;
 
@@ -510,7 +510,7 @@ function lockAdmin(){
 }
 
 async function api(payload){
-  try{const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});return await r.json();}
+  try{const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});return await r.json();}
   catch(e){return{success:false,message:'Network error: '+e.message};}
 }
 
