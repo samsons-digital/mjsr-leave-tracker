@@ -388,6 +388,24 @@ tr.row-d td{background:var(--amber-bg)}
 <!-- ═══════════════════════════════ ADJUST BALANCES ═══════════════════════════════ -->
 <div id="tab-adjust" class="tab">
   <div class="sec-hdr"><div class="sec-title">Adjust Balances</div></div>
+
+  <!-- ADJUST PIN SCREEN -->
+  <div id="adjPinScreen" class="card">
+    <div class="pin-screen">
+      <div class="pin-ic">&#x1F512;</div>
+      <div class="pin-title">Admin Access Required</div>
+      <div class="pin-sub">Enter your PIN to access Adjust Balances</div>
+      <div class="pin-row">
+        <input type="password" id="adjPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')checkAdjPin()">
+        <button class="btn btn-g" onclick="checkAdjPin()">Unlock</button>
+      </div>
+      <div class="pin-err" id="adjPinErr">Incorrect PIN. Please try again.</div>
+    </div>
+  </div>
+
+  <!-- ADJUST CONTENT -->
+  <div id="adjContent" style="display:none">
+  <div class="lock-bar">&#x1F513; Adjust Balances unlocked &nbsp;&middot;&nbsp; All adjustments are logged<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="lockAdj()">Lock</button></div>
   <div class="card">
     <div class="card-title">Admin Balance Adjustment</div>
     <div class="card-sub">Correct balances, apply opening balances or grant Special Occasion leave. All adjustments are logged.</div>
@@ -414,6 +432,7 @@ tr.row-d td{background:var(--amber-bg)}
       <button class="btn btn-o" onclick="resetAdj()">Reset</button>
     </div>
   </div>
+  </div><!-- /adjContent -->
 </div>
 
 <!-- ═══════════════════════════════ EDIT & VOID ═══════════════════════════════ -->
@@ -670,6 +689,7 @@ function navTo(tab, btn) {
   if (btn) btn.classList.add('active');
   if (tab === 'dashboard') loadDashboard();
   if (['history','adjust','admin','config'].includes(tab)) fillSelects();
+  if (tab === 'adjust') setTimeout(() => { if(document.getElementById('adjContent').style.display==='none') document.getElementById('adjPinInp').focus(); }, 80);
   if (tab === 'config' && cfgOpen) loadAllCfg();
   if (tab === 'config' && !cfgOpen) setTimeout(() => document.getElementById('cfgPinInp').focus(), 80);
   if (tab === 'admin'  && !adminOpen) setTimeout(() => document.getElementById('adminPinInp').focus(), 80);
@@ -899,6 +919,25 @@ async function loadDashboard() {
         return '<tr><td><code style="font-size:11px">' + r.logId + '</code></td><td style="font-size:12px;color:var(--muted)">' + dt + '</td><td>' + r.name + '</td><td>' + r.dept + '</td><td><span class="bdg bdg-' + tc + '">' + r.type + '</span></td><td>' + parseFloat(r.days||0).toFixed(1) + '</td><td><span class="bdg bdg-' + sc + '">' + r.status + '</span></td></tr>';
       }).join('') + '</tbody></table></div>'
     : '<div class="empty"><div class="empty-ic">&#x1F4CB;</div>No submissions yet.</div>';
+}
+
+
+// ─── ADJUST PIN ───────────────────────────────────────────
+function checkAdjPin() {
+  if (document.getElementById('adjPinInp').value === PIN) {
+    document.getElementById('adjPinScreen').style.display = 'none';
+    document.getElementById('adjContent').style.display   = 'block';
+  } else {
+    document.getElementById('adjPinErr').style.display = 'block';
+    document.getElementById('adjPinInp').value = '';
+    setTimeout(() => document.getElementById('adjPinErr').style.display = 'none', 3000);
+  }
+}
+
+function lockAdj() {
+  document.getElementById('adjPinScreen').style.display = 'block';
+  document.getElementById('adjContent').style.display   = 'none';
+  document.getElementById('adjPinInp').value = '';
 }
 
 // ─── ADJUST BALANCES ──────────────────────────────────────
