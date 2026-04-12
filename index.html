@@ -145,6 +145,55 @@
     .stats-row{grid-template-columns:repeat(2,1fr);}
     .card{padding:20px;}
   }
+
+  /* ---- CONFIG TAB SPECIFIC ---- */
+  .section-nav{display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:0;}
+  .section-btn{padding:10px 20px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;border-radius:6px 6px 0 0;}
+  .section-btn:hover{color:var(--ink);background:var(--cream);}
+  .section-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+  .section-panel{display:none;}
+  .section-panel.active{display:block;}
+  .card.card-accent{border-left:4px solid var(--accent);}
+  .card.card-amber{border-left:4px solid var(--amber);}
+  .card.card-blue{border-left:4px solid var(--blue);}
+  .card.danger-card{border-color:#fca5a5;background:#fff8f8;}
+  .card.danger-card .card-title{color:var(--red);}
+  .tier-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
+  .chain-container{background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-top:20px;}
+  .chain-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:16px;color:var(--ink);}
+  .chain-flow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .chain-node{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .chain-box{padding:10px 16px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;min-width:120px;}
+  .chain-box.staff{background:var(--blue-light);border:1.5px solid #bfdbfe;color:var(--blue);}
+  .chain-box.lm{background:var(--accent-bg);border:1.5px solid #86efac;color:var(--accent);}
+  .chain-box.gm{background:#1e4d2b;color:#fff;border:1.5px solid #1e4d2b;}
+  .chain-box.approved{background:#f0fdf4;border:1.5px solid #86efac;color:#15803d;}
+  .chain-label{font-size:10px;color:var(--muted);font-weight:500;}
+  .chain-arrow{font-size:20px;color:var(--muted);margin-top:-16px;}
+  .chain-dept-info{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+  .chain-info-item{background:var(--snow);border:1px solid var(--border);border-radius:8px;padding:12px 16px;}
+  .chain-info-label{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);font-weight:600;margin-bottom:4px;}
+  .chain-info-value{font-size:14px;font-weight:600;color:var(--ink);}
+  .badge-t1{background:#f0fdf4;color:#15803d;}
+  .badge-t2{background:var(--blue-light);color:var(--blue);}
+  .badge-t3{background:var(--amber-light);color:var(--amber);}
+  .badge-t4{background:var(--red-light);color:var(--red);}
+  .badge-t5{background:#faf5ff;color:#6b21a8;}
+  .badge-gm{background:#1e4d2b;color:#fff;}
+  .badge-lm{background:var(--cream);color:var(--muted);border:1px solid var(--border);}
+  .badge-active{background:#f0fdf4;color:#15803d;}
+  .badge-inactive{background:var(--red-light);color:var(--red);}
+  .lock-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--amber-light);border:1px solid #fde68a;border-radius:8px;margin-bottom:20px;font-size:13px;color:var(--amber);font-weight:500;}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(13,17,23,0.5);display:flex;align-items:center;justify-content:center;z-index:999;animation:fadeIn 0.15s ease;}
+  .modal{background:var(--snow);border-radius:16px;padding:32px;width:100%;max-width:520px;box-shadow:var(--shadow-lg);position:relative;}
+  .modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;margin-bottom:6px;}
+  .modal-sub{font-size:13px;color:var(--muted);margin-bottom:22px;}
+  .modal-close{position:absolute;top:16px;right:16px;background:var(--cream);border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+  .modal-close:hover{background:var(--border);}
+  .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  .nav-btn.config-btn{border:1px solid rgba(255,255,255,0.3);}
+  .nav-btn.config-btn.unlocked{background:rgba(100,200,255,0.2);color:#7dd3fc;border-color:rgba(100,200,255,0.4);}
+
 </style>
 </head>
 <body>
@@ -460,12 +509,151 @@
     </div>
     <div id="voidModalAlert"></div>
   </div>
+
+  <!-- ========== CONFIG (PIN PROTECTED) ========== -->
+  <div id="tab-config" class="tab-panel">
+    <div class="section-header"><div class="section-title">&#x2699;&#xFE0F; System Configuration</div></div>
+
+    <!-- CONFIG PIN SCREEN -->
+    <div id="configPinScreen" class="card">
+      <div class="pin-overlay">
+        <div class="pin-lock-icon">&#x2699;&#xFE0F;</div>
+        <div class="pin-title">Configuration Access</div>
+        <div class="pin-sub">Enter your PIN to manage system configuration</div>
+        <div class="pin-input-wrap">
+          <input type="password" id="configPinInput" class="pin-input" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')checkConfigPin()">
+          <button class="btn btn-primary" onclick="checkConfigPin()">Unlock</button>
+        </div>
+        <div class="pin-error" id="configPinError">Incorrect PIN. Please try again.</div>
+      </div>
+    </div>
+
+    <!-- CONFIG CONTENT -->
+    <div id="configPanelContent" style="display:none;">
+      <div class="lock-bar">
+        &#x2699;&#xFE0F; Configuration mode active &nbsp;&middot;&nbsp; Changes save directly to Google Sheets and take effect immediately
+        <button class="btn btn-outline btn-sm" style="margin-left:auto;" onclick="lockConfigPanel()">&#x1F512; Lock</button>
+      </div>
+
+      <div class="section-nav">
+        <button class="section-btn active" onclick="switchConfigSection('tiers',this)">&#x1F4CA; Tier Config</button>
+        <button class="section-btn" onclick="switchConfigSection('departments',this)">&#x1F3E2; Departments</button>
+        <button class="section-btn" onclick="switchConfigSection('gm',this)">&#x1F464; GM &amp; System</button>
+        <button class="section-btn" onclick="switchConfigSection('preview',this)">&#x1F517; Approval Chain</button>
+      </div>
+
+      <!-- TIERS -->
+      <div id="config-section-tiers" class="section-panel active">
+        <div class="card card-accent">
+          <div class="card-title">Staff Tier Configuration</div>
+          <div class="card-sub">Define the 5 staff tiers and who must approve requests for each tier. Changes affect the entire approval routing system immediately.</div>
+          <div id="tierTableWrap"><div class="empty"><div class="empty-icon">&#x23F3;</div><div class="empty-text">Loading tiers&hellip;</div></div></div>
+          <div id="tierAlert"></div>
+        </div>
+        <div class="card" id="tierEditCard" style="display:none;">
+          <div class="card-title" id="tierEditTitle">Edit Tier</div>
+          <div class="card-sub">Adjust the tier name and approval routing. Tier IDs are fixed.</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Tier ID</label><input type="text" id="editTierId" readonly style="background:var(--cream);"></div>
+            <div class="form-group"><label>Tier Name</label><input type="text" id="editTierName" placeholder="e.g. General Staff"></div>
+            <div class="form-group"><label>Approval Required From</label><select id="editTierApprover"><option value="Line Manager">Line Manager</option><option value="GM">GM</option></select></div>
+            <div class="form-group"><label>Notes (Optional)</label><input type="text" id="editTierNotes" placeholder="e.g. No further escalation required"></div>
+          </div>
+          <div id="tierFormAlert"></div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="saveTier()">Save Tier</button>
+            <button class="btn btn-outline" onclick="cancelTierEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEPARTMENTS -->
+      <div id="config-section-departments" class="section-panel">
+        <div class="card card-blue">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div class="card-title">Department Configuration</div>
+              <div class="card-sub" style="margin-bottom:0;">Assign line managers, emails and minimum manager requirements per department.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openAddDept()">+ Add Department</button>
+          </div>
+        </div>
+        <div class="card">
+          <div id="deptTableWrap"><div class="empty"><div class="empty-icon">&#x23F3;</div><div class="empty-text">Loading departments&hellip;</div></div></div>
+          <div id="deptAlert"></div>
+        </div>
+      </div>
+
+      <!-- GM CONFIG -->
+      <div id="config-section-gm" class="section-panel">
+        <div class="card card-amber">
+          <div class="card-title">GM &amp; System Settings</div>
+          <div class="card-sub">Control GM approval routing, off day cycle rules and system-wide configuration.</div>
+          <div class="form-grid">
+            <div class="form-group"><label>GM Full Name</label><input type="text" id="gmName" placeholder="e.g. Martin"></div>
+            <div class="form-group"><label>GM Email Address</label><input type="email" id="gmEmail" placeholder="e.g. martin@malamjabbaresort.com"></div>
+            <div class="form-group"><label>Off Days Per Cycle</label><input type="number" id="offDayCycleDays" min="1" max="31" placeholder="6"></div>
+            <div class="form-group"><label>Minimum Notice Period (Hours)</label><input type="number" id="offDayNoticeHrs" min="0" max="168" placeholder="24"></div>
+            <div class="form-group"><label>Cycle Start Day</label><input type="number" id="cycleStartDay" min="1" max="28" placeholder="25"></div>
+            <div class="form-group"><label>System Name</label><input type="text" id="systemName" placeholder="MJSR Staff Management Portal"></div>
+          </div>
+          <div id="gmAlert"></div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="gmSaveBtn" onclick="saveGMConfig()">Save Settings</button>
+            <button class="btn btn-outline" onclick="loadGMConfig()">&#x21BB; Reload</button>
+          </div>
+        </div>
+        <div class="card" id="systemSummaryCard" style="display:none;">
+          <div class="card-title">Current Configuration Summary</div>
+          <div id="systemSummaryContent"></div>
+        </div>
+      </div>
+
+      <!-- APPROVAL CHAIN PREVIEW -->
+      <div id="config-section-preview" class="section-panel">
+        <div class="card">
+          <div class="card-title">&#x1F517; Approval Chain Preview</div>
+          <div class="card-sub">Select a department to see the full approval chain for each staff tier.</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Select Department</label><select id="previewDeptSelect" onchange="renderChainPreview()"><option value="">Select a department&hellip;</option></select></div>
+            <div class="form-group"><label>Filter by Staff Tier</label><select id="previewTierFilter" onchange="renderChainPreview()"><option value="">All Tiers</option></select></div>
+          </div>
+          <div id="chainPreviewContainer"><div class="empty"><div class="empty-icon">&#x1F517;</div><div class="empty-text">Select a department above to see the approval chain.</div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DEPT MODAL -->
+  <div id="deptModal" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+      <button class="modal-close" onclick="closeDeptModal()">&#x2715;</button>
+      <div class="modal-title" id="deptModalTitle">Add Department</div>
+      <div class="modal-sub">Department names must match exactly how they appear in the Employees sheet.</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Department ID</label><input type="text" id="deptId" placeholder="e.g. D12"></div>
+        <div class="form-group"><label>Department Name</label><input type="text" id="deptName" placeholder="e.g. SECURITY"></div>
+        <div class="form-group"><label>Line Manager Name</label><input type="text" id="deptLMName" placeholder="e.g. Ahmad Khan"></div>
+        <div class="form-group"><label>Line Manager Email</label><input type="email" id="deptLMEmail" placeholder="e.g. ahmad@malamjabbaresort.com"></div>
+        <div class="form-group"><label>Min Managers On Duty</label><input type="number" id="deptMinMgr" value="2" min="1" max="10"></div>
+        <div class="form-group"><label>Status</label><select id="deptActive"><option value="Yes">Active</option><option value="No">Inactive</option></select></div>
+      </div>
+      <div id="deptModalAlert"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="deptSaveBtn" onclick="saveDept()">Save Department</button>
+        <button class="btn btn-outline" onclick="closeDeptModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbybU2ee__bYCfvONE0BxcH0q2_bNeInCyyGG-eD00xGUauPCf8pXAiUdoCB8pErwFKH/exec';
 const ADMIN_PIN='1234';
 let allEmployees=[],currentEmployee=null,currentBalance=null,allHistory=[],voidLogAll=[],pendingVoidRow=null,adminUnlocked=false;
+let configUnlocked=false,tiersData=[],deptsData=[],gmData={},editingDeptId=null;
 
 document.addEventListener('DOMContentLoaded',()=>{
   loadEmployees();
@@ -481,6 +669,8 @@ function switchTab(tab,btn){
   if(btn)btn.classList.add('active');
   if(tab==='dashboard')loadDashboard();
   if(['history','adjust','admin'].includes(tab))populateSecondarySelects();
+  if(tab==='config'&&configUnlocked)loadAllConfigData();
+  if(tab==='config'&&!configUnlocked)setTimeout(()=>document.getElementById('configPinInput').focus(),100);
   if(tab==='admin'&&!adminUnlocked)setTimeout(()=>document.getElementById('pinInput').focus(),100);
 }
 
@@ -727,6 +917,160 @@ async function executeVoid(){
   btn.innerHTML='Yes, Void Entry';
   if(res.success){closeVoidModal();showAlert('voidAlert','success','&#x2713; '+res.message);loadVoidLog();}
   else{showAlert('voidModalAlert','error','&#x2717; '+res.message);btn.disabled=false;}
+}
+
+
+// ============================================================
+// CONFIG TAB FUNCTIONS
+// ============================================================
+function checkConfigPin(){
+  if(document.getElementById('configPinInput').value===ADMIN_PIN){
+    configUnlocked=true;
+    document.getElementById('configPinScreen').style.display='none';
+    document.getElementById('configPanelContent').style.display='block';
+    document.getElementById('configNavBtn').classList.add('unlocked');
+    loadAllConfigData();
+  } else {
+    document.getElementById('configPinError').style.display='block';
+    document.getElementById('configPinInput').value='';
+    setTimeout(()=>document.getElementById('configPinError').style.display='none',3000);
+  }
+}
+function lockConfigPanel(){
+  configUnlocked=false;
+  document.getElementById('configPinScreen').style.display='block';
+  document.getElementById('configPanelContent').style.display='none';
+  document.getElementById('configNavBtn').classList.remove('unlocked');
+  document.getElementById('configPinInput').value='';
+}
+function switchConfigSection(name,btn){
+  document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.section-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('config-section-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='preview')populatePreviewSelects();
+}
+async function loadAllConfigData(){await Promise.all([loadTiers(),loadDepts(),loadGMConfig()]);}
+async function loadTiers(){
+  const res=await api({action:'getConfig',section:'tiers'});
+  if(!res.success){showAlert('tierAlert','error',res.message);return;}
+  tiersData=res.data;renderTierTable();
+}
+function renderTierTable(){
+  const wrap=document.getElementById('tierTableWrap');
+  if(!tiersData.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">&#x1F4CA;</div><div class="empty-text">No tiers found.</div></div>';return;}
+  const cm={T1:'t1',T2:'t2',T3:'t3',T4:'t4',T5:'t5'};
+  const ab=(a)=>a==='GM'?'<span class="badge badge-gm">GM</span>':'<span class="badge badge-lm">Line Manager</span>';
+  wrap.innerHTML='<div class="table-wrap"><table><thead><tr><th>Tier</th><th>Name</th><th>Approval From</th><th>Notes</th><th>Action</th></tr></thead><tbody>'+tiersData.map(t=>'<tr><td><span class="badge badge-'+(cm[t.tierId]||'t1')+'">'+t.tierId+'</span></td><td><strong>'+t.tierName+'</strong></td><td>'+ab(t.approver)+'</td><td style="color:var(--muted);font-size:12px;">'+(t.notes||'&mdash;')+'</td><td><button class="btn btn-outline btn-sm" onclick="editTier(''+t.tierId+'')">Edit</button></td></tr>').join('')+'</tbody></table></div>';
+}
+function editTier(tierId){
+  const tier=tiersData.find(t=>t.tierId===tierId);if(!tier)return;
+  document.getElementById('editTierId').value=tier.tierId;
+  document.getElementById('editTierName').value=tier.tierName;
+  document.getElementById('editTierApprover').value=tier.approver;
+  document.getElementById('editTierNotes').value=tier.notes||'';
+  document.getElementById('tierEditTitle').textContent='Edit Tier: '+tier.tierName;
+  document.getElementById('tierEditCard').style.display='block';
+  document.getElementById('tierEditCard').scrollIntoView({behavior:'smooth'});
+}
+function cancelTierEdit(){document.getElementById('tierEditCard').style.display='none';document.getElementById('tierFormAlert').innerHTML='';}
+async function saveTier(){
+  const payload={action:'saveConfig',section:'tier',tierId:document.getElementById('editTierId').value,tierName:document.getElementById('editTierName').value.trim(),approver:document.getElementById('editTierApprover').value,notes:document.getElementById('editTierNotes').value.trim()};
+  if(!payload.tierName){showAlert('tierFormAlert','error','Tier name is required.');return;}
+  const btn=document.querySelector('#tierEditCard .btn-primary');
+  btn.innerHTML='<span class="spinner"></span> Saving&hellip;';btn.disabled=true;
+  const res=await api(payload);btn.innerHTML='Save Tier';btn.disabled=false;
+  if(res.success){showAlert('tierFormAlert','success','&#x2713; Tier saved.');await loadTiers();setTimeout(()=>{document.getElementById('tierEditCard').style.display='none';document.getElementById('tierFormAlert').innerHTML='';},1500);}
+  else showAlert('tierFormAlert','error','&#x2717; '+res.message);
+}
+async function loadDepts(){
+  const res=await api({action:'getConfig',section:'departments'});
+  if(!res.success){showAlert('deptAlert','error',res.message);return;}
+  deptsData=res.data;renderDeptTable();
+}
+function renderDeptTable(){
+  const wrap=document.getElementById('deptTableWrap');
+  if(!deptsData.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">&#x1F3E2;</div><div class="empty-text">No departments found.</div></div>';return;}
+  wrap.innerHTML='<div class="table-wrap"><table><thead><tr><th>ID</th><th>Department</th><th>Line Manager</th><th>LM Email</th><th>Min Mgrs</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+deptsData.map(d=>'<tr><td><code style="font-size:11px;">'+d.deptId+'</code></td><td><strong>'+d.deptName+'</strong></td><td>'+(d.lmName||'<span style="color:var(--muted)">Not set</span>')+'</td><td style="font-size:12px;color:var(--muted);">'+(d.lmEmail||'&mdash;')+'</td><td style="text-align:center;">'+d.minMgrs+'</td><td><span class="badge badge-'+(d.active==='Yes'?'active':'inactive')+'">'+d.active+'</span></td><td><button class="btn btn-outline btn-sm" onclick="editDept(''+d.deptId+'')" style="margin-right:4px;">Edit</button><button class="btn btn-sm" style="background:'+(d.active==='Yes'?'var(--red-light)':'var(--accent-bg)')+';color:'+(d.active==='Yes'?'var(--red)':'var(--accent)')+';border:1.5px solid '+(d.active==='Yes'?'#fca5a5':'#86efac')+';" onclick="toggleDept(''+d.deptId+'',''+d.active+'')">'+(d.active==='Yes'?'Deactivate':'Activate')+'</button></td></tr>').join('')+'</tbody></table></div>';
+}
+function openAddDept(){
+  editingDeptId=null;
+  document.getElementById('deptModalTitle').textContent='Add New Department';
+  ['deptId','deptName','deptLMName','deptLMEmail'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('deptMinMgr').value='2';document.getElementById('deptActive').value='Yes';
+  document.getElementById('deptId').readOnly=false;document.getElementById('deptModalAlert').innerHTML='';
+  document.getElementById('deptModal').style.display='flex';
+}
+function editDept(deptId){
+  const dept=deptsData.find(d=>d.deptId===deptId);if(!dept)return;
+  editingDeptId=deptId;
+  document.getElementById('deptModalTitle').textContent='Edit: '+dept.deptName;
+  document.getElementById('deptId').value=dept.deptId;document.getElementById('deptId').readOnly=true;
+  document.getElementById('deptName').value=dept.deptName;document.getElementById('deptLMName').value=dept.lmName||'';
+  document.getElementById('deptLMEmail').value=dept.lmEmail||'';document.getElementById('deptMinMgr').value=dept.minMgrs;
+  document.getElementById('deptActive').value=dept.active;document.getElementById('deptModalAlert').innerHTML='';
+  document.getElementById('deptModal').style.display='flex';
+}
+function closeDeptModal(){document.getElementById('deptModal').style.display='none';editingDeptId=null;}
+async function saveDept(){
+  const payload={action:'saveConfig',section:'department',deptId:document.getElementById('deptId').value.trim(),deptName:document.getElementById('deptName').value.trim(),lmName:document.getElementById('deptLMName').value.trim(),lmEmail:document.getElementById('deptLMEmail').value.trim(),minMgrs:document.getElementById('deptMinMgr').value,active:document.getElementById('deptActive').value,isEdit:editingDeptId!==null};
+  if(!payload.deptId||!payload.deptName){showAlert('deptModalAlert','error','Department ID and Name are required.');return;}
+  const btn=document.getElementById('deptSaveBtn');btn.innerHTML='<span class="spinner"></span> Saving&hellip;';btn.disabled=true;
+  const res=await api(payload);btn.innerHTML='Save Department';btn.disabled=false;
+  if(res.success){showAlert('deptModalAlert','success','&#x2713; '+res.message);await loadDepts();setTimeout(closeDeptModal,1200);}
+  else showAlert('deptModalAlert','error','&#x2717; '+res.message);
+}
+async function toggleDept(deptId,currentActive){
+  const dept=deptsData.find(d=>d.deptId===deptId);if(!dept)return;
+  const res=await api({action:'saveConfig',section:'department',isEdit:true,deptId,deptName:dept.deptName,lmName:dept.lmName,lmEmail:dept.lmEmail,minMgrs:dept.minMgrs,active:currentActive==='Yes'?'No':'Yes'});
+  if(res.success)await loadDepts();else showAlert('deptAlert','error',res.message);
+}
+async function loadGMConfig(){
+  const res=await api({action:'getConfig',section:'gm'});
+  if(!res.success){showAlert('gmAlert','error',res.message);return;}
+  gmData=res.data;
+  document.getElementById('gmName').value=gmData.GM_Name||'';document.getElementById('gmEmail').value=gmData.GM_Email||'';
+  document.getElementById('offDayCycleDays').value=gmData.Off_Day_Cycle_Days||'6';document.getElementById('offDayNoticeHrs').value=gmData.Off_Day_Notice_Hrs||'24';
+  document.getElementById('cycleStartDay').value=gmData.Cycle_Start_Day||'25';document.getElementById('systemName').value=gmData.System_Name||'';
+  renderSystemSummary();
+}
+async function saveGMConfig(){
+  const payload={action:'saveConfig',section:'gm',data:{GM_Name:document.getElementById('gmName').value.trim(),GM_Email:document.getElementById('gmEmail').value.trim(),Off_Day_Cycle_Days:document.getElementById('offDayCycleDays').value,Off_Day_Notice_Hrs:document.getElementById('offDayNoticeHrs').value,Cycle_Start_Day:document.getElementById('cycleStartDay').value,System_Name:document.getElementById('systemName').value.trim()}};
+  if(!payload.data.GM_Email){showAlert('gmAlert','error','GM Email is required.');return;}
+  const btn=document.getElementById('gmSaveBtn');btn.innerHTML='<span class="spinner"></span> Saving&hellip;';btn.disabled=true;
+  const res=await api(payload);btn.innerHTML='Save Settings';btn.disabled=false;
+  if(res.success){showAlert('gmAlert','success','&#x2713; Settings saved.');gmData=payload.data;renderSystemSummary();}
+  else showAlert('gmAlert','error','&#x2717; '+res.message);
+}
+function renderSystemSummary(){
+  const card=document.getElementById('systemSummaryCard');
+  if(!gmData.GM_Name){card.style.display='none';return;}
+  card.style.display='block';
+  document.getElementById('systemSummaryContent').innerHTML='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;">'+[['GM Name',gmData.GM_Name||'&mdash;'],['GM Email',gmData.GM_Email||'&mdash;'],['Off Days Per Cycle',(gmData.Off_Day_Cycle_Days||'6')+' days'],['Min Notice Period',(gmData.Off_Day_Notice_Hrs||'24')+' hours'],['Cycle Start Day',(gmData.Cycle_Start_Day||'25')+'th of each month'],['System Name',gmData.System_Name||'&mdash;']].map(([l,v])=>'<div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:14px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);font-weight:600;margin-bottom:4px;">'+l+'</div><div style="font-size:14px;font-weight:600;color:var(--ink);">'+v+'</div></div>').join('')+'</div>';
+}
+function populatePreviewSelects(){
+  const ds=document.getElementById('previewDeptSelect'),ts=document.getElementById('previewTierFilter');
+  const cd=ds.value,ct=ts.value;
+  ds.innerHTML='<option value="">Select a department&hellip;</option>'+deptsData.filter(d=>d.active==='Yes').map(d=>'<option value="'+d.deptId+'">'+d.deptName+'</option>').join('');
+  ts.innerHTML='<option value="">All Tiers</option>'+tiersData.map(t=>'<option value="'+t.tierId+'">'+t.tierName+'</option>').join('');
+  ds.value=cd;ts.value=ct;
+}
+function renderChainPreview(){
+  const deptId=document.getElementById('previewDeptSelect').value,tierFilter=document.getElementById('previewTierFilter').value;
+  const container=document.getElementById('chainPreviewContainer');
+  if(!deptId){container.innerHTML='<div class="empty"><div class="empty-icon">&#x1F517;</div><div class="empty-text">Select a department above.</div></div>';return;}
+  const dept=deptsData.find(d=>d.deptId===deptId);if(!dept)return;
+  const tiers=tierFilter?tiersData.filter(t=>t.tierId===tierFilter):tiersData;
+  const lmLabel=dept.lmName||'Line Manager (not set)',lmEmail=dept.lmEmail||'Email not configured';
+  const gmLabel=gmData.GM_Name||'GM (not set)',gmEmail=gmData.GM_Email||'Email not configured';
+  const tc={T1:'t1',T2:'t2',T3:'t3',T4:'t4',T5:'t5'};
+  let html='<div class="chain-container"><div class="chain-title">Approval Chain: '+dept.deptName+'</div><div class="chain-dept-info"><div class="chain-info-item"><div class="chain-info-label">Line Manager</div><div class="chain-info-value">'+lmLabel+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+lmEmail+'</div></div><div class="chain-info-item"><div class="chain-info-label">GM Approver</div><div class="chain-info-value">'+gmLabel+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+gmEmail+'</div></div></div><div style="margin-top:20px;display:flex;flex-direction:column;gap:12px;">';
+  tiers.forEach(tier=>{
+    const isGM=tier.approver==='GM',aName=isGM?gmLabel:lmLabel,aEmail=isGM?gmEmail:lmEmail,aCls=isGM?'gm':'lm';
+    html+='<div style="background:var(--snow);border:1px solid var(--border);border-radius:10px;padding:16px 20px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><span class="badge badge-'+(tc[tier.tierId]||'t1')+'">'+tier.tierId+'</span><strong style="font-size:14px;">'+tier.tierName+'</strong>'+(tier.notes?'<span style="font-size:12px;color:var(--muted);">&mdash; '+tier.notes+'</span>':'')+'</div><div class="chain-flow"><div class="chain-node"><div class="chain-box staff">'+tier.tierName+'<br><span style="font-size:10px;opacity:0.7;">Makes request</span></div><div class="chain-label">Employee</div></div><div class="chain-arrow">&rarr;</div><div class="chain-node"><div class="chain-box staff">Line Manager<br><span style="font-size:10px;opacity:0.7;">Submits on behalf</span></div><div class="chain-label">Submission</div></div><div class="chain-arrow">&rarr;</div><div class="chain-node"><div class="chain-box '+aCls+'">'+aName+'<br><span style="font-size:10px;opacity:0.8;">'+aEmail+'</span></div><div class="chain-label">Approver</div></div><div class="chain-arrow">&rarr;</div><div class="chain-node"><div class="chain-box approved">&#x2713; Approved / &#x2717; Rejected<br><span style="font-size:10px;">Email sent</span></div><div class="chain-label">Outcome</div></div></div></div>';
+  });
+  html+='</div><div style="margin-top:16px;padding:12px 16px;background:var(--amber-light);border:1px solid #fde68a;border-radius:8px;font-size:12px;color:var(--amber);"><strong>Manager Constraint:</strong> Minimum '+dept.minMgrs+' manager(s) must remain on duty at all times in '+dept.deptName+'.</div></div>';
+  container.innerHTML=html;
 }
 
 function showAlert(id,type,msg){const icons={success:'&#x2713;',error:'&#x2717;',info:'&#x2139;',warning:'&#x26A0;'};document.getElementById(id).innerHTML=`<div class="alert alert-${type}"><span class="alert-icon">${icons[type]}</span><span>${msg}</span></div>`;}
