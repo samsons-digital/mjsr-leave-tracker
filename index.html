@@ -16,17 +16,20 @@
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
-  header{background:var(--accent);color:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.18);}
+  header{background:var(--accent);color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.18);}
+  .header-top{padding:0 32px;display:flex;align-items:center;height:56px;}
   .header-brand{display:flex;align-items:center;gap:12px;}
   .header-logo{width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:-0.5px;}
   .header-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;letter-spacing:-0.3px;}
   .header-sub{font-size:11px;opacity:0.7;font-weight:300;}
-  .header-nav{display:flex;gap:4px;}
-  .nav-btn{padding:7px 16px;border:none;background:transparent;color:rgba(255,255,255,0.75);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-radius:6px;transition:all 0.15s;}
-  .nav-btn:hover{background:rgba(255,255,255,0.12);color:#fff;}
-  .nav-btn.active{background:rgba(255,255,255,0.2);color:#fff;}
-  .nav-btn.admin-btn{border:1px solid rgba(255,255,255,0.3);}
-  .nav-btn.admin-btn.unlocked{background:rgba(255,200,0,0.2);color:#ffe066;border-color:rgba(255,200,0,0.4);}
+  .header-nav{display:flex;gap:0;padding:0 24px;background:rgba(0,0,0,0.15);overflow-x:auto;scrollbar-width:none;}
+  .header-nav::-webkit-scrollbar{display:none;}
+  .nav-btn{padding:10px 18px;border:none;background:transparent;color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap;border-radius:0;}
+  .nav-btn:hover{color:#fff;background:rgba(255,255,255,0.08);}
+  .nav-btn.active{color:#fff;border-bottom-color:#fff;font-weight:600;}
+  .nav-btn.admin-btn{border-bottom:2px solid transparent;}
+  .nav-btn.admin-btn.unlocked{color:#ffe066;border-bottom-color:#ffe066;}
+  .nav-btn.config-btn.unlocked{color:#7dd3fc;border-bottom-color:#7dd3fc;}
   .main{max-width:1100px;margin:0 auto;padding:32px 24px;}
   .tab-panel{display:none;animation:fadeIn 0.2s ease;}
   .tab-panel.active{display:block;}
@@ -137,8 +140,7 @@
   .confirm-msg{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;text-align:center;}
   .confirm-btns{display:flex;gap:10px;justify-content:center;margin-top:20px;}
   @media(max-width:768px){
-    header{padding:0 16px;}
-    .header-nav{display:none;}
+    .header-top{padding:0 16px;}
     .main{padding:20px 16px;}
     .form-grid{grid-template-columns:1fr;}
     .balance-grid{grid-template-columns:repeat(2,1fr);}
@@ -151,8 +153,8 @@
   .section-btn{padding:10px 20px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;border-radius:6px 6px 0 0;}
   .section-btn:hover{color:var(--ink);background:var(--cream);}
   .section-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
-  .section-panel{display:none;}
-  .section-panel.active{display:block;}
+  .config-section-panel{display:none;}
+  .config-section-panel.active{display:block;}
   .card.card-accent{border-left:4px solid var(--accent);}
   .card.card-amber{border-left:4px solid var(--amber);}
   .card.card-blue{border-left:4px solid var(--blue);}
@@ -199,11 +201,13 @@
 <body>
 
 <header>
-  <div class="header-brand">
-    <div class="header-logo">MJ</div>
-    <div>
-      <div class="header-title">Leave Tracker</div>
-      <div class="header-sub">Malam Jabba Ski Resort</div>
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-logo">MJ</div>
+      <div>
+        <div class="header-title">Leave Tracker</div>
+        <div class="header-sub">Malam Jabba Ski Resort</div>
+      </div>
     </div>
   </div>
   <nav class="header-nav">
@@ -212,6 +216,7 @@
     <button class="nav-btn" onclick="switchTab('dashboard',this)">Dashboard</button>
     <button class="nav-btn" onclick="switchTab('adjust',this)">Adjust Balances</button>
     <button class="nav-btn admin-btn" id="adminNavBtn" onclick="switchTab('admin',this)">&#x1F512; Edit &amp; Void</button>
+    <button class="nav-btn config-btn" id="configNavBtn" onclick="switchTab('config',this)">&#x2699;&#xFE0F; Config</button>
   </nav>
 </header>
 
@@ -543,7 +548,7 @@
       </div>
 
       <!-- TIERS -->
-      <div id="config-section-tiers" class="section-panel active">
+      <div id="config-section-tiers" class="config-section-panel active">
         <div class="card card-accent">
           <div class="card-title">Staff Tier Configuration</div>
           <div class="card-sub">Define the 5 staff tiers and who must approve requests for each tier. Changes affect the entire approval routing system immediately.</div>
@@ -568,7 +573,7 @@
       </div>
 
       <!-- DEPARTMENTS -->
-      <div id="config-section-departments" class="section-panel">
+      <div id="config-section-departments" class="config-section-panel">
         <div class="card card-blue">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
@@ -585,7 +590,7 @@
       </div>
 
       <!-- GM CONFIG -->
-      <div id="config-section-gm" class="section-panel">
+      <div id="config-section-gm" class="config-section-panel">
         <div class="card card-amber">
           <div class="card-title">GM &amp; System Settings</div>
           <div class="card-sub">Control GM approval routing, off day cycle rules and system-wide configuration.</div>
@@ -610,7 +615,7 @@
       </div>
 
       <!-- APPROVAL CHAIN PREVIEW -->
-      <div id="config-section-preview" class="section-panel">
+      <div id="config-section-preview" class="config-section-panel">
         <div class="card">
           <div class="card-title">&#x1F517; Approval Chain Preview</div>
           <div class="card-sub">Select a department to see the full approval chain for each staff tier.</div>
@@ -944,7 +949,7 @@ function lockConfigPanel(){
   document.getElementById('configPinInput').value='';
 }
 function switchConfigSection(name,btn){
-  document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.config-section-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.section-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('config-section-'+name).classList.add('active');
   btn.classList.add('active');
