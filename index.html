@@ -412,23 +412,15 @@ tr.row-d td{background:var(--amber-bg)}
     </div>
   </div>
   <div id="adminContent" style="display:none">
-    <div class="lock-bar">&#x1F513; Admin mode active - All actions are logged<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="lockAdmin()">Lock</button></div>
-
+    <div class="lock-bar">Admin mode active - All actions are logged<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="lockAdmin()">Lock</button></div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <div>
-          <div class="card-title">All Leave Submissions</div>
-          <div style="font-size:13px;color:var(--muted)">Click Edit Balance to correct a balance, or Void to reverse an approved entry.</div>
-        </div>
+        <div><div class="card-title">All Leave Submissions</div><div style="font-size:13px;color:var(--muted)">Click Edit Balance to correct a balance. Void only available on Approved entries.</div></div>
         <button class="btn btn-o btn-sm" onclick="loadAdminLog()">&#x21BB; Refresh</button>
       </div>
       <div class="grid3" style="margin-bottom:16px">
-        <div class="fg">
-          <label>Search Employee</label>
-          <input type="text" id="adminLogSearch" placeholder="Type a name..." oninput="filterAdminLog()">
-        </div>
-        <div class="fg">
-          <label>Filter by Type</label>
+        <div class="fg"><label>Search Employee</label><input type="text" id="adminLogSearch" placeholder="Type a name..." oninput="filterAdminLog()"></div>
+        <div class="fg"><label>Leave Type</label>
           <select id="adminLogType" onchange="filterAdminLog()">
             <option value="">All Types</option>
             <option value="Annual">Annual</option>
@@ -438,8 +430,7 @@ tr.row-d td{background:var(--amber-bg)}
             <option value="Monthly">Monthly</option>
           </select>
         </div>
-        <div class="fg">
-          <label>Filter by Status</label>
+        <div class="fg"><label>Status</label>
           <select id="adminLogStatus" onchange="filterAdminLog()">
             <option value="">All Statuses</option>
             <option value="Pending">Pending</option>
@@ -451,16 +442,14 @@ tr.row-d td{background:var(--amber-bg)}
       <div id="adminLogTable"><div class="empty"><div class="empty-ic">&#x23F3;</div>Loading...</div></div>
       <div id="adminLogAlert"></div>
     </div>
-
-    <!-- INLINE EDIT PANEL -->
     <div id="inlineEditPanel" class="card accent-l" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="card-title" id="inlineEditTitle">Edit Balance</div>
         <button class="btn btn-o btn-sm" onclick="closeInlineEdit()">&#x2715; Close</button>
       </div>
-      <div class="grid2" style="margin-bottom:0">
+      <div class="grid2">
         <div class="fg"><label>Employee</label><input type="text" id="ieEmployee" readonly></div>
-        <div class="fg"><label>Leave Type</label><input type="text" id="ieType" readonly></div>
+        <div class="fg"><label>Leave Type</label><input type="text" id="ieLeaveTypeDisp" readonly></div>
         <div class="fg"><label>Current Balance</label><input type="number" id="ieCurBal" readonly></div>
         <div class="fg"><label>Corrected Balance</label><input type="number" id="ieNewBal" step="0.01" placeholder="Enter corrected balance" oninput="updateIEPreview()"></div>
         <div class="fg full"><label>Reason (required)</label><input type="text" id="ieReason" placeholder="e.g. Over-deducted in March"></div>
@@ -473,7 +462,6 @@ tr.row-d td{background:var(--amber-bg)}
         <button class="btn btn-o" onclick="closeInlineEdit()">Cancel</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -968,133 +956,97 @@ async function loadDashboard() {
 async function loadAdjBal() { var id = document.getElementById('adjEmpSel').value, t = document.getElementById('adjType').value; if (!id || !t) return; var r = await api({ action:'getBalance', employeeId:id }); if (r.success) document.getElementById('adjCurBal').value = parseFloat(r.balance[t] || 0).toFixed(2); }
 async function submitAdj() { var id = document.getElementById('adjEmpSel').value, t = document.getElementById('adjType').value, nb = parseFloat(document.getElementById('adjNewBal').value), rsn = document.getElementById('adjReason').value.trim(), adm = document.getElementById('adjAdmin').value.trim(); if (!id||!t||isNaN(nb)||!rsn||!adm) { showAlert('adjAlert','e','Please complete all fields.'); return; } var r = await api({ action:'updateBalance', employeeId:id, leaveType:t, newBalance:nb, reason:rsn, adminUser:adm }); showAlert('adjAlert', r.success?'s':'e', r.message); if (r.success) { document.getElementById('adjCurBal').value = nb.toFixed(2); document.getElementById('adjNewBal').value = ''; document.getElementById('adjReason').value = ''; } }
 function resetAdj() { ['adjEmpSel','adjType','adjNewBal','adjReason','adjAdmin'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('adjCurBal').value = ''; clearAlert('adjAlert'); }
-// ADMIN LOG - unified view
-var adminLogAll = [], ieEmpId = '', ieLeaveType = '', ieLogId = '';
-async function loadAdminLog() {
-  var wrap = document.getElementById('adminLogTable');
-  wrap.innerHTML = '<div class="empty"><div class="empty-ic">&#x23F3;</div>Loading...</div>';
-  var r = await api({ action:'getAllLeaveLog', status:'', dept:'', type:'' });
-  if (!r.success) { wrap.innerHTML = '<div class="empty">Error: ' + r.message + '</div>'; return; }
-  adminLogAll = r.entries;
+var adminLogAll=[], ieEmpId='', ieLeaveType='', ieLogId='';
+async function loadAdminLog(){
+  var wrap=document.getElementById('adminLogTable');
+  wrap.innerHTML='<div class="empty"><div class="empty-ic">&#x23F3;</div>Loading...</div>';
+  var r=await api({action:'getAllLeaveLog',status:'',dept:'',type:''});
+  if(!r.success){wrap.innerHTML='<div class="empty">Error: '+r.message+'</div>';return;}
+  adminLogAll=r.entries;
   filterAdminLog();
 }
-function filterAdminLog() {
-  var q      = document.getElementById('adminLogSearch').value.toLowerCase();
-  var type   = document.getElementById('adminLogType').value;
-  var status = document.getElementById('adminLogStatus').value;
-  var filtered = adminLogAll.filter(function(e) {
-    var nameMatch   = !q      || e.employeeName.toLowerCase().indexOf(q) !== -1;
-    var typeMatch   = !type   || e.leaveType === type;
-    var statusMatch = !status || e.status === status;
-    return nameMatch && typeMatch && statusMatch;
+function filterAdminLog(){
+  var q=document.getElementById('adminLogSearch').value.toLowerCase();
+  var type=document.getElementById('adminLogType').value;
+  var status=document.getElementById('adminLogStatus').value;
+  var filtered=adminLogAll.filter(function(e){
+    return (!q||e.employeeName.toLowerCase().indexOf(q)!==-1)&&
+           (!type||e.leaveType===type)&&
+           (!status||e.status===status);
   });
   renderAdminLog(filtered);
 }
-function renderAdminLog(rows) {
-  var wrap = document.getElementById('adminLogTable');
-  if (!rows.length) { wrap.innerHTML = '<div class="empty"><div class="empty-ic">&#x1F4CB;</div>No entries found.</div>'; return; }
-  var tc = { Annual:'annual', Casual:'casual', Sick:'sick', Special:'special', Monthly:'monthly' };
-  var sc = { Pending:'pending', Approved:'approved', Rejected:'rejected' };
-  wrap.innerHTML = '<div class="tbl-wrap"><table>' +
-    '<thead><tr><th>Log ID</th><th>Date</th><th>Employee</th><th>Dept</th><th>Type</th><th>Days</th><th>Start</th><th>End</th><th>Bal Before</th><th>Bal After</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
-    rows.map(function(e) {
-      var canVoid = e.status === 'Approved';
-      var voidBtn = canVoid
-        ? '<button class="btn btn-r btn-sm" style="margin-left:4px" onclick="openVoidFromLog('' + e.logId + '','' + e.employeeId + '','' + e.employeeName.replace(/'/g,"&#39;") + '','' + e.leaveType + '',' + e.days + ')">Void</button>'
-        : '';
-      return '<tr>' +
-        '<td><code style="font-size:11px">' + e.logId + '</code></td>' +
-        '<td style="font-size:12px;color:var(--muted)">' + e.timestamp + '</td>' +
-        '<td><strong>' + e.employeeName + '</strong></td>' +
-        '<td style="font-size:12px">' + e.department + '</td>' +
-        '<td><span class="bdg bdg-' + (tc[e.leaveType]||'annual') + '">' + e.leaveType + '</span></td>' +
-        '<td>' + e.days.toFixed(1) + '</td>' +
-        '<td style="font-size:12px">' + e.startDate + '</td>' +
-        '<td style="font-size:12px">' + e.endDate + '</td>' +
-        '<td>' + e.balBefore.toFixed(2) + '</td>' +
-        '<td><strong>' + e.balAfter.toFixed(2) + '</strong></td>' +
-        '<td><span class="bdg bdg-' + (sc[e.status]||'pending') + '">' + e.status + '</span></td>' +
-        '<td style="white-space:nowrap">' +
-          '<button class="btn btn-a btn-sm" onclick="openInlineEdit('' + e.logId + '','' + e.employeeId + '','' + e.employeeName.replace(/'/g,"&#39;") + '','' + e.leaveType + '')">Edit Balance</button>' +
-          voidBtn +
+function renderAdminLog(rows){
+  var wrap=document.getElementById('adminLogTable');
+  if(!rows.length){wrap.innerHTML='<div class="empty"><div class="empty-ic">&#x1F4CB;</div>No entries found.</div>';return;}
+  var tc={Annual:'annual',Casual:'casual',Sick:'sick',Special:'special',Monthly:'monthly'};
+  var sc={Pending:'pending',Approved:'approved',Rejected:'rejected'};
+  wrap.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>Log ID</th><th>Date</th><th>Employee</th><th>Dept</th><th>Type</th><th>Days</th><th>Start</th><th>End</th><th>Before</th><th>After</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
+    rows.map(function(e){
+      var canVoid=e.status==='Approved';
+      var vBtn=canVoid?'<button class="btn btn-r btn-sm" style="margin-left:4px" onclick="openVoidFromLog(''+e.logId+'',''+e.employeeId+'',''+e.employeeName.replace(/'/g,"&#39;")+'',''+e.leaveType+'','+e.days+')">Void</button>':'';
+      return '<tr>'+
+        '<td><code style="font-size:11px">'+e.logId+'</code></td>'+
+        '<td style="font-size:12px;color:var(--muted)">'+e.timestamp+'</td>'+
+        '<td><strong>'+e.employeeName+'</strong></td>'+
+        '<td style="font-size:12px">'+e.department+'</td>'+
+        '<td><span class="bdg bdg-'+(tc[e.leaveType]||'annual')+'">'+e.leaveType+'</span></td>'+
+        '<td>'+e.days.toFixed(1)+'</td>'+
+        '<td style="font-size:12px">'+e.startDate+'</td>'+
+        '<td style="font-size:12px">'+e.endDate+'</td>'+
+        '<td>'+e.balBefore.toFixed(2)+'</td>'+
+        '<td><strong>'+e.balAfter.toFixed(2)+'</strong></td>'+
+        '<td><span class="bdg bdg-'+(sc[e.status]||'pending')+'">'+e.status+'</span></td>'+
+        '<td style="white-space:nowrap">'+
+          '<button class="btn btn-a btn-sm" onclick="openInlineEdit(''+e.logId+'',''+e.employeeId+'',''+e.employeeName.replace(/'/g,"&#39;")+'',''+e.leaveType+'')">Edit Bal</button>'+
+          vBtn+
         '</td></tr>';
-    }).join('') + '</tbody></table></div>';
+    }).join('')+'</tbody></table></div>';
 }
-
-// INLINE EDIT
-async function openInlineEdit(logId, empId, empName, leaveType) {
-  ieLogId     = logId;
-  ieEmpId     = empId;
-  ieLeaveType = leaveType;
-  document.getElementById('inlineEditTitle').textContent = 'Edit Balance: ' + empName + ' - ' + leaveType + ' Leave';
-  document.getElementById('ieEmployee').value = empName;
-  document.getElementById('ieType').value     = leaveType;
-  document.getElementById('ieNewBal').value   = '';
-  document.getElementById('ieReason').value   = '';
-  document.getElementById('ieAuth').value     = '';
-  document.getElementById('iePreview').style.display = 'none';
-  document.getElementById('ieSaveBtn').disabled = true;
+async function openInlineEdit(logId,empId,empName,leaveType){
+  ieLogId=logId; ieEmpId=empId; ieLeaveType=leaveType;
+  document.getElementById('inlineEditTitle').textContent='Edit Balance: '+empName+' - '+leaveType+' Leave';
+  document.getElementById('ieEmployee').value=empName;
+  document.getElementById('ieLeaveTypeDisp').value=leaveType;
+  document.getElementById('ieNewBal').value='';
+  document.getElementById('ieReason').value='';
+  document.getElementById('ieAuth').value='';
+  document.getElementById('iePreview').style.display='none';
+  document.getElementById('ieSaveBtn').disabled=true;
   clearAlert('ieAlert');
-  // Fetch current balance
-  var r = await api({ action:'getBalance', employeeId: empId });
-  if (r.success) {
-    document.getElementById('ieCurBal').value = parseFloat(r.balance[leaveType] || 0).toFixed(2);
-  }
-  var panel = document.getElementById('inlineEditPanel');
-  panel.style.display = 'block';
-  panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  var r=await api({action:'getBalance',employeeId:empId});
+  if(r.success) document.getElementById('ieCurBal').value=parseFloat(r.balance[leaveType]||0).toFixed(2);
+  var panel=document.getElementById('inlineEditPanel');
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'center'});
 }
-function updateIEPreview() {
-  var cur = parseFloat(document.getElementById('ieCurBal').value);
-  var nv  = parseFloat(document.getElementById('ieNewBal').value);
-  var btn = document.getElementById('ieSaveBtn');
-  var el  = document.getElementById('iePreview');
-  if (isNaN(cur) || isNaN(nv)) { el.style.display = 'none'; btn.disabled = true; return; }
-  var diff = nv - cur;
-  document.getElementById('iePreviewTxt').textContent = 'Balance: ' + cur.toFixed(2) + ' -> ' + nv.toFixed(2) + ' days (' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + '). Fill in reason and name below before saving.';
-  el.style.display = 'flex';
-  btn.disabled = false;
+function updateIEPreview(){
+  var cur=parseFloat(document.getElementById('ieCurBal').value),nv=parseFloat(document.getElementById('ieNewBal').value),btn=document.getElementById('ieSaveBtn'),el=document.getElementById('iePreview');
+  if(isNaN(cur)||isNaN(nv)){el.style.display='none';btn.disabled=true;return;}
+  var diff=nv-cur;
+  document.getElementById('iePreviewTxt').textContent='Balance: '+cur.toFixed(2)+' -> '+nv.toFixed(2)+' days ('+(diff>=0?'+':'')+diff.toFixed(2)+')';
+  el.style.display='flex'; btn.disabled=false;
 }
-async function saveInlineEdit() {
-  var nb  = parseFloat(document.getElementById('ieNewBal').value);
-  var rsn = document.getElementById('ieReason').value.trim();
-  var adm = document.getElementById('ieAuth').value.trim();
-  if (isNaN(nb) || !rsn || !adm) { showAlert('ieAlert','e','New balance, reason and authorised by are all required.'); return; }
-  var btn = document.getElementById('ieSaveBtn');
-  btn.innerHTML = '<span class="spin"></span> Saving...'; btn.disabled = true;
-  var r = await api({ action:'updateBalance', employeeId:ieEmpId, leaveType:ieLeaveType, newBalance:nb, reason:'[EDIT CORRECTION] ' + rsn, adminUser:adm });
-  btn.innerHTML = 'Save Correction';
-  if (r.success) {
-    showAlert('ieAlert','s','&#x2713; Balance corrected and logged.');
-    document.getElementById('ieCurBal').value = nb.toFixed(2);
-    document.getElementById('ieNewBal').value = '';
-    document.getElementById('ieReason').value = '';
-    setTimeout(function() { closeInlineEdit(); loadAdminLog(); }, 1200);
-  } else { showAlert('ieAlert','e','&#x2717; ' + r.message); btn.disabled = false; }
+async function saveInlineEdit(){
+  var nb=parseFloat(document.getElementById('ieNewBal').value),rsn=document.getElementById('ieReason').value.trim(),adm=document.getElementById('ieAuth').value.trim();
+  if(isNaN(nb)||!rsn||!adm){showAlert('ieAlert','e','New balance, reason and authorised by are all required.');return;}
+  var btn=document.getElementById('ieSaveBtn');
+  btn.innerHTML='<span class="spin"></span> Saving...'; btn.disabled=true;
+  var r=await api({action:'updateBalance',employeeId:ieEmpId,leaveType:ieLeaveType,newBalance:nb,reason:'[EDIT CORRECTION] '+rsn,adminUser:adm});
+  btn.innerHTML='Save Correction';
+  if(r.success){showAlert('ieAlert','s','&#x2713; Balance corrected and logged.');document.getElementById('ieCurBal').value=nb.toFixed(2);document.getElementById('ieNewBal').value='';document.getElementById('ieReason').value='';setTimeout(function(){closeInlineEdit();loadAdminLog();},1200);}
+  else{showAlert('ieAlert','e','&#x2717; '+r.message);btn.disabled=false;}
 }
-function closeInlineEdit() {
-  document.getElementById('inlineEditPanel').style.display = 'none';
-  ieEmpId = ''; ieLeaveType = ''; ieLogId = '';
-  clearAlert('ieAlert');
-}
-function openVoidFromLog(logId, empId, empName, leaveType, days) {
-  // Build a fake voidPending entry and open the existing void modal
-  voidPending = {
-    'Log_ID':         logId,
-    'Employee_ID':    empId,
-    'Employee_Name':  empName,
-    'Leave_Type':     leaveType,
-    'Days_Requested': days
-  };
-  document.getElementById('voidConfirmMsg').textContent = 'Void ' + leaveType + ' Leave of ' + days + ' day(s) for ' + empName + ' (Log: ' + logId + '). ' + days + ' day(s) will be returned to their balance.';
-  document.getElementById('voidByInp').value = '';
-  document.getElementById('voidReasonInp').value = '';
+function closeInlineEdit(){document.getElementById('inlineEditPanel').style.display='none';ieEmpId='';ieLeaveType='';ieLogId='';clearAlert('ieAlert');}
+function openVoidFromLog(logId,empId,empName,leaveType,days){
+  voidPending={'Log_ID':logId,'Employee_ID':empId,'Employee_Name':empName,'Leave_Type':leaveType,'Days_Requested':days};
+  document.getElementById('voidConfirmMsg').textContent='Void '+leaveType+' Leave of '+days+' day(s) for '+empName+' (Log: '+logId+'). '+days+' day(s) will be returned to their balance.';
+  document.getElementById('voidByInp').value=''; document.getElementById('voidReasonInp').value='';
   clearAlert('voidModalAlert');
-  document.getElementById('voidConfirmBtn').disabled = false;
-  document.getElementById('voidConfirmBtn').innerHTML = 'Yes, Void Entry';
-  document.getElementById('voidModal').style.display = 'flex';
+  document.getElementById('voidConfirmBtn').disabled=false;
+  document.getElementById('voidConfirmBtn').innerHTML='Yes, Void Entry';
+  document.getElementById('voidModal').style.display='flex';
 }
-
 function openVoidModal(idx) { voidPending=voidAll[idx]; var days=parseFloat(voidPending['Days_Requested']||0).toFixed(1); document.getElementById('voidConfirmMsg').textContent='Void '+voidPending['Leave_Type']+' Leave of '+days+' day(s) for '+voidPending['Employee_Name']+' (Log: '+voidPending['Log_ID']+'). '+days+' day(s) will be returned to their balance.'; document.getElementById('voidByInp').value=''; document.getElementById('voidReasonInp').value=''; clearAlert('voidModalAlert'); document.getElementById('voidConfirmBtn').disabled=false; document.getElementById('voidConfirmBtn').innerHTML='Yes, Void Entry'; document.getElementById('voidModal').style.display='flex'; }
 function closeVoidModal() { document.getElementById('voidModal').style.display='none'; voidPending=null; }
 async function executeVoid() { var by=document.getElementById('voidByInp').value.trim(),rsn=document.getElementById('voidReasonInp').value.trim(); if(!by||!rsn){showAlert('voidModalAlert','e','Please enter your name and a reason.');return;} var btn=document.getElementById('voidConfirmBtn'); btn.innerHTML='<span class="spin"></span> Processing...'; btn.disabled=true; var r=await api({action:'voidLeave',logId:voidPending['Log_ID'],employeeId:voidPending['Employee_ID'],leaveType:voidPending['Leave_Type'],daysToReverse:parseFloat(voidPending['Days_Requested']||0),adminUser:by,reason:rsn}); btn.innerHTML='Yes, Void Entry'; if(r.success){closeVoidModal();showAlert('adminLogAlert','s','&#x2713; '+r.message);loadAdminLog();}else{showAlert('voidModalAlert','e','&#x2717; '+r.message);btn.disabled=false;} }
