@@ -956,7 +956,7 @@ async function loadDashboard() {
 async function loadAdjBal() { var id = document.getElementById('adjEmpSel').value, t = document.getElementById('adjType').value; if (!id || !t) return; var r = await api({ action:'getBalance', employeeId:id }); if (r.success) document.getElementById('adjCurBal').value = parseFloat(r.balance[t] || 0).toFixed(2); }
 async function submitAdj() { var id = document.getElementById('adjEmpSel').value, t = document.getElementById('adjType').value, nb = parseFloat(document.getElementById('adjNewBal').value), rsn = document.getElementById('adjReason').value.trim(), adm = document.getElementById('adjAdmin').value.trim(); if (!id||!t||isNaN(nb)||!rsn||!adm) { showAlert('adjAlert','e','Please complete all fields.'); return; } var r = await api({ action:'updateBalance', employeeId:id, leaveType:t, newBalance:nb, reason:rsn, adminUser:adm }); showAlert('adjAlert', r.success?'s':'e', r.message); if (r.success) { document.getElementById('adjCurBal').value = nb.toFixed(2); document.getElementById('adjNewBal').value = ''; document.getElementById('adjReason').value = ''; } }
 function resetAdj() { ['adjEmpSel','adjType','adjNewBal','adjReason','adjAdmin'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('adjCurBal').value = ''; clearAlert('adjAlert'); }
-var adminLogAll=[], ieEmpId='', ieLeaveType='', ieLogId='';
+var adminLogAll=[], pendingEntries=[], ieEmpId='', ieLeaveType='', ieLogId='';
 async function loadAdminLog(){
   var wrap=document.getElementById('adminLogTable');
   wrap.innerHTML='<div class="empty"><div class="empty-ic">&#x23F3;</div>Loading...</div>';
@@ -982,9 +982,9 @@ function renderAdminLog(rows){
   var tc={Annual:'annual',Casual:'casual',Sick:'sick',Special:'special',Monthly:'monthly'};
   var sc={Pending:'pending',Approved:'approved',Rejected:'rejected'};
   wrap.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>Log ID</th><th>Date</th><th>Employee</th><th>Dept</th><th>Type</th><th>Days</th><th>Start</th><th>End</th><th>Before</th><th>After</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
-    rows.map(function(e){
+    rows.map(function(e,idx){
       var canVoid=e.status==='Approved';
-      var vBtn=canVoid?'<button class="btn btn-r btn-sm" style="margin-left:4px" onclick="openVoidFromLog(''+e.logId+'',''+e.employeeId+'',''+e.employeeName.replace(/'/g,"&#39;")+'',''+e.leaveType+'','+e.days+')">Void</button>':'';
+      var vBtn=canVoid?'<button class="btn btn-r btn-sm" style="margin-left:4px" data-idx="'+idx+'" onclick="voidFromIdx(this.dataset.idx)">Void</button>':'';
       return '<tr>'+
         '<td><code style="font-size:11px">'+e.logId+'</code></td>'+
         '<td style="font-size:12px;color:var(--muted)">'+e.timestamp+'</td>'+
@@ -998,11 +998,22 @@ function renderAdminLog(rows){
         '<td><strong>'+e.balAfter.toFixed(2)+'</strong></td>'+
         '<td><span class="bdg bdg-'+(sc[e.status]||'pending')+'">'+e.status+'</span></td>'+
         '<td style="white-space:nowrap">'+
-          '<button class="btn btn-a btn-sm" onclick="openInlineEdit(''+e.logId+'',''+e.employeeId+'',''+e.employeeName.replace(/'/g,"&#39;")+'',''+e.leaveType+'')">Edit Bal</button>'+
+          '<button class="btn btn-a btn-sm" data-idx="'+idx+'" onclick="editFromIdx(this.dataset.idx)">Edit Bal</button>'+
           vBtn+
         '</td></tr>';
     }).join('')+'</tbody></table></div>';
 }
+function editFromIdx(idx){
+  var e=adminLogAll[parseInt(idx)];
+  if(!e)return;
+  openInlineEdit(e.logId,e.employeeId,e.employeeName,e.leaveType);
+}
+function voidFromIdx(idx){
+  var e=adminLogAll[parseInt(idx)];
+  if(!e)return;
+  openVoidFromLog(e.logId,e.employeeId,e.employeeName,e.leaveType,e.days);
+}
+
 async function openInlineEdit(logId,empId,empName,leaveType){
   ieLogId=logId; ieEmpId=empId; ieLeaveType=leaveType;
   document.getElementById('inlineEditTitle').textContent='Edit Balance: '+empName+' - '+leaveType+' Leave';
@@ -1050,8 +1061,46 @@ function openVoidFromLog(logId,empId,empName,leaveType,days){
 function openVoidModal(idx) { voidPending=voidAll[idx]; var days=parseFloat(voidPending['Days_Requested']||0).toFixed(1); document.getElementById('voidConfirmMsg').textContent='Void '+voidPending['Leave_Type']+' Leave of '+days+' day(s) for '+voidPending['Employee_Name']+' (Log: '+voidPending['Log_ID']+'). '+days+' day(s) will be returned to their balance.'; document.getElementById('voidByInp').value=''; document.getElementById('voidReasonInp').value=''; clearAlert('voidModalAlert'); document.getElementById('voidConfirmBtn').disabled=false; document.getElementById('voidConfirmBtn').innerHTML='Yes, Void Entry'; document.getElementById('voidModal').style.display='flex'; }
 function closeVoidModal() { document.getElementById('voidModal').style.display='none'; voidPending=null; }
 async function executeVoid() { var by=document.getElementById('voidByInp').value.trim(),rsn=document.getElementById('voidReasonInp').value.trim(); if(!by||!rsn){showAlert('voidModalAlert','e','Please enter your name and a reason.');return;} var btn=document.getElementById('voidConfirmBtn'); btn.innerHTML='<span class="spin"></span> Processing...'; btn.disabled=true; var r=await api({action:'voidLeave',logId:voidPending['Log_ID'],employeeId:voidPending['Employee_ID'],leaveType:voidPending['Leave_Type'],daysToReverse:parseFloat(voidPending['Days_Requested']||0),adminUser:by,reason:rsn}); btn.innerHTML='Yes, Void Entry'; if(r.success){closeVoidModal();showAlert('adminLogAlert','s','&#x2713; '+r.message);loadAdminLog();}else{showAlert('voidModalAlert','e','&#x2717; '+r.message);btn.disabled=false;} }
-async function loadPending() { var wrap=document.getElementById('pendingTable'); wrap.innerHTML='<div class="empty"><div class="empty-ic">&#x23F3;</div>Loading...</div>'; var r=await api({action:'getPendingLeave'}); if(!r.success){wrap.innerHTML='<div class="empty"><div class="empty-ic">&#x26A0;</div>'+r.message+'</div>';return;} if(!r.entries.length){wrap.innerHTML='<div class="empty"><div class="empty-ic">&#x2705;</div>No pending requests. All caught up.</div>';return;} var tc={Annual:'annual',Casual:'casual',Sick:'sick',Special:'special',Monthly:'monthly'}; wrap.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>Log ID</th><th>Submitted</th><th>Employee</th><th>Dept</th><th>Type</th><th>Days</th><th>Start</th><th>End</th><th>Submitted By</th><th>Notes</th><th>Actions</th></tr></thead><tbody>'+r.entries.map(function(e){return '<tr><td><code style="font-size:11px">'+e.logId+'</code></td><td style="font-size:12px;color:var(--muted)">'+e.timestamp+'</td><td><strong>'+e.employeeName+'</strong></td><td style="font-size:12px">'+e.department+'</td><td><span class="bdg bdg-'+(tc[e.leaveType]||'annual')+'">'+e.leaveType+'</span></td><td><strong>'+e.days.toFixed(1)+'</strong></td><td style="font-size:12px">'+e.startDate+'</td><td style="font-size:12px">'+e.endDate+'</td><td style="font-size:12px">'+e.submittedBy+'</td><td style="font-size:12px;color:var(--muted)">'+(e.notes||'-')+'</td><td style="white-space:nowrap"><button class="btn btn-g btn-sm" style="margin-right:5px" onclick="doApprove(\''+e.logId+'\',\''+e.employeeName.replace(/'/g,'&#39;')+'\',' +e.days+')">Approve</button><button class="btn btn-r btn-sm" onclick="openRejectModal(\''+e.logId+'\',\''+e.employeeName.replace(/'/g,'&#39;')+'\',\''+e.leaveType+'\','+e.days+')">Reject</button></td></tr>';}).join('')+'</tbody></table></div>'; }
+async function loadPending(){
+  var wrap=document.getElementById('pendingTable');
+  wrap.innerHTML='<div class="empty"><div class="empty-ic">&#x23F3;</div>Loading...</div>';
+  var r=await api({action:'getPendingLeave'});
+  if(!r.success){wrap.innerHTML='<div class="empty"><div class="empty-ic">&#x26A0;</div>'+r.message+'</div>';return;}
+  pendingEntries=r.entries;
+  if(!r.entries.length){wrap.innerHTML='<div class="empty"><div class="empty-ic">&#x2705;</div>No pending requests. All caught up.</div>';return;}
+  var tc={Annual:'annual',Casual:'casual',Sick:'sick',Special:'special',Monthly:'monthly'};
+  wrap.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>Log ID</th><th>Submitted</th><th>Employee</th><th>Dept</th><th>Type</th><th>Days</th><th>Start</th><th>End</th><th>Submitted By</th><th>Notes</th><th>Actions</th></tr></thead><tbody>'+
+    r.entries.map(function(e,idx){
+      return '<tr>'+
+        '<td><code style="font-size:11px">'+e.logId+'</code></td>'+
+        '<td style="font-size:12px;color:var(--muted)">'+e.timestamp+'</td>'+
+        '<td><strong>'+e.employeeName+'</strong></td>'+
+        '<td style="font-size:12px">'+e.department+'</td>'+
+        '<td><span class="bdg bdg-'+(tc[e.leaveType]||'annual')+'">'+e.leaveType+'</span></td>'+
+        '<td><strong>'+e.days.toFixed(1)+'</strong></td>'+
+        '<td style="font-size:12px">'+e.startDate+'</td>'+
+        '<td style="font-size:12px">'+e.endDate+'</td>'+
+        '<td style="font-size:12px">'+e.submittedBy+'</td>'+
+        '<td style="font-size:12px;color:var(--muted)">'+(e.notes||'-')+'</td>'+
+        '<td style="white-space:nowrap">'+
+          '<button class="btn btn-g btn-sm" style="margin-right:5px" data-idx="'+idx+'" onclick="approveFromIdx(this.dataset.idx)">Approve</button>'+
+          '<button class="btn btn-r btn-sm" data-idx="'+idx+'" onclick="rejectFromIdx(this.dataset.idx)">Reject</button>'+
+        '</td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+
 async function doApprove(logId, name, days) { var approvedBy = window.prompt('Approving ' + name + ' - ' + days + ' days. Enter your name:'); if (!approvedBy || !approvedBy.trim()) return; var r = await api({ action:'approveLeave', logId:logId, approvedBy:approvedBy.trim() }); showAlert('pendingAlert', r.success?'s':'e', r.success ? '&#x2713; '+r.message : '&#x2717; '+r.message); if (r.success) { loadPending(); loadApprovalHistory(); } }
+function approveFromIdx(idx){
+  var e=pendingEntries[parseInt(idx)]; if(!e)return;
+  var name=window.prompt('Approving '+e.employeeName+' - '+e.leaveType+' Leave ('+e.days+' days). Enter your name:');
+  if(!name||!name.trim())return;
+  doApprove(e.logId,name.trim());
+}
+function rejectFromIdx(idx){
+  var e=pendingEntries[parseInt(idx)]; if(!e)return;
+  openRejectModal(e.logId,e.employeeName,e.leaveType,e.days);
+}
+
 function openRejectModal(logId, name, type, days) { pendingRejectId=logId; document.getElementById('rejectConfirmMsg').textContent='Rejecting '+name+' - '+type+' Leave ('+days+' days). The '+days+' day(s) will be automatically restored to their balance.'; document.getElementById('rejectByInp').value=''; document.getElementById('rejectReasonInp').value=''; clearAlert('rejectModalAlert'); document.getElementById('rejectConfirmBtn').disabled=false; document.getElementById('rejectConfirmBtn').innerHTML='Confirm Rejection'; document.getElementById('rejectModal').style.display='flex'; }
 function closeRejectModal() { document.getElementById('rejectModal').style.display='none'; pendingRejectId=''; }
 async function executeReject() { var by=document.getElementById('rejectByInp').value.trim(),rsn=document.getElementById('rejectReasonInp').value.trim(); if(!by||!rsn){showAlert('rejectModalAlert','e','Please enter your name and a reason.');return;} var btn=document.getElementById('rejectConfirmBtn'); btn.innerHTML='<span class="spin"></span> Processing...'; btn.disabled=true; var r=await api({action:'rejectLeave',logId:pendingRejectId,rejectedBy:by,reason:rsn}); btn.innerHTML='Confirm Rejection'; if(r.success){closeRejectModal();showAlert('pendingAlert','s','&#x2713; '+r.message);loadPending();loadApprovalHistory();}else{showAlert('rejectModalAlert','e','&#x2717; '+r.message);btn.disabled=false;} }
