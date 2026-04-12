@@ -5,32 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MJSR Leave Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
-  --ink: #0d1117;
-  --paper: #f5f2eb;
-  --cream: #ede9df;
-  --snow: #faf9f6;
-  --accent: #1e4d2b;
-  --accent2: #2d7a43;
-  --accent-bg: #f0fdf4;
-  --red: #c0392b;
-  --red-bg: #fdf0ef;
-  --amber: #b45309;
-  --amber-bg: #fffbeb;
-  --blue: #1e3a5f;
-  --blue-bg: #eff6ff;
-  --purple: #6b21a8;
-  --purple-bg: #faf5ff;
-  --border: #d8d2c5;
-  --muted: #7a7469;
-  --shadow: 0 1px 3px rgba(13,17,23,.08),0 4px 16px rgba(13,17,23,.06);
-  --shadow-lg: 0 8px 32px rgba(13,17,23,.14);
+  --ink:#0d1117; --paper:#f5f2eb; --cream:#ede9df; --snow:#faf9f6;
+  --accent:#1e4d2b; --accent2:#2d7a43; --accent-bg:#f0fdf4;
+  --red:#c0392b; --red-bg:#fdf0ef;
+  --amber:#b45309; --amber-bg:#fffbeb;
+  --blue:#1e3a5f; --blue-bg:#eff6ff;
+  --purple:#6b21a8; --purple-bg:#faf5ff;
+  --border:#d8d2c5; --muted:#7a7469;
+  --shadow:0 1px 3px rgba(13,17,23,.08),0 4px 16px rgba(13,17,23,.06);
+  --shadow-lg:0 8px 32px rgba(13,17,23,.14);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6}
 
-/* ── HEADER ── */
+/* HEADER */
 #app-header{background:var(--accent);color:#fff;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .hdr-top{display:flex;align-items:center;padding:0 28px;height:54px}
 .hdr-logo{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;flex-shrink:0}
@@ -45,15 +36,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .nav-btn.pin-btn.unlocked{color:#ffe066;border-bottom-color:#ffe066}
 .nav-btn.cfg-btn.unlocked{color:#7dd3fc;border-bottom-color:#7dd3fc}
 
-/* ── LAYOUT ── */
+/* LAYOUT */
 .main{max-width:1080px;margin:0 auto;padding:28px 20px}
 
-/* ── TABS ── */
+/* TABS */
 .tab{display:none}
 .tab.active{display:block;animation:fadein .18s ease}
 @keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── CARDS ── */
+/* CARDS */
 .card{background:var(--snow);border:1px solid var(--border);border-radius:11px;padding:24px 28px;box-shadow:var(--shadow);margin-bottom:20px}
 .card.accent-l{border-left:4px solid var(--accent)}
 .card.amber-l{border-left:4px solid var(--amber)}
@@ -61,23 +52,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .card.red-l{border-left:4px solid var(--red);background:#fff8f8}
 .card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:5px}
 .card-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
-
-/* ── SECTION HEADER ── */
 .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .sec-title{font-family:'Syne',sans-serif;font-weight:700;font-size:19px;letter-spacing:-.4px}
 
-/* ── FORMS ── */
+/* FORMS */
 .fg{display:flex;flex-direction:column;gap:5px}
 .fg label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 .fg input,.fg select,.fg textarea{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:7px;background:var(--snow);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(45,122,67,.1)}
 .fg input[readonly]{background:var(--cream);color:var(--muted)}
-.fg textarea{resize:vertical;min-height:68px}
+.fg textarea{resize:vertical;min-height:80px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .full{grid-column:1/-1}
 
-/* ── BUTTONS ── */
+/* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
 .btn:disabled{background:#9ca3af!important;cursor:not-allowed!important;transform:none!important;box-shadow:none!important}
 .btn-g{background:var(--accent);color:#fff}
@@ -93,7 +82,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .btn-sm{padding:6px 13px;font-size:12px}
 .btn-row{display:flex;gap:9px;align-items:center;margin-top:18px;flex-wrap:wrap}
 
-/* ── ALERTS ── */
+/* ALERTS */
 .alert{padding:11px 15px;border-radius:7px;font-size:13px;font-weight:500;display:flex;align-items:flex-start;gap:9px;margin-top:12px}
 .alert i{flex-shrink:0;margin-top:1px}
 .alert-s{background:var(--accent-bg);border:1px solid #86efac;color:#15803d}
@@ -101,7 +90,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .alert-i{background:var(--blue-bg);border:1px solid #bfdbfe;color:var(--blue)}
 .alert-w{background:var(--amber-bg);border:1px solid #fde68a;color:var(--amber)}
 
-/* ── TABLES ── */
+/* TABLES */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:600;color:var(--muted);padding:9px 12px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap}
@@ -112,12 +101,13 @@ tr.voided td{opacity:.5;text-decoration:line-through}
 tr.row-e td{background:var(--red-bg)}
 tr.row-d td{background:var(--amber-bg)}
 
-/* ── BADGES ── */
+/* BADGES */
 .bdg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
 .bdg-annual{background:var(--blue-bg);color:var(--blue)}
 .bdg-casual{background:var(--purple-bg);color:var(--purple)}
 .bdg-sick{background:var(--amber-bg);color:var(--amber)}
 .bdg-special{background:var(--accent-bg);color:var(--accent)}
+.bdg-monthly{background:#f0f9ff;color:#0369a1}
 .bdg-approved{background:var(--accent-bg);color:var(--accent)}
 .bdg-adjustment{background:var(--amber-bg);color:var(--amber)}
 .bdg-accrual{background:var(--accent-bg);color:var(--accent)}
@@ -133,10 +123,9 @@ tr.row-d td{background:var(--amber-bg)}
 .bdg-gm{background:var(--accent);color:#fff}
 .bdg-lm{background:var(--cream);color:var(--muted);border:1px solid var(--border)}
 .bdg-neg{background:var(--red-bg);color:var(--red)}
-.bdg-monthly{background:#f0f9ff;color:#0369a1}
 
-/* ── BALANCE CARDS ── */
-.bal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+/* BALANCE CARDS */
+.bal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
 .bal-card{border-radius:9px;padding:14px 16px;border:1.5px solid transparent}
 .bal-card.annual{background:var(--blue-bg);border-color:#bfdbfe}
 .bal-card.casual{background:var(--purple-bg);border-color:#e9d5ff}
@@ -150,32 +139,32 @@ tr.row-d td{background:var(--amber-bg)}
 .bal-unit{font-size:10px;color:var(--muted);margin-top:2px}
 .bal-warn{margin-top:7px;padding:5px 9px;background:var(--red-bg);border:1px solid #fecaca;border-radius:5px;font-size:12px;color:var(--red);font-weight:500}
 
-/* ── EMP STRIP ── */
+/* EMP STRIP */
 .emp-strip{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--cream);border-radius:7px;border:1px solid var(--border);margin-bottom:18px}
 .emp-av{width:38px;height:38px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;flex-shrink:0}
 .emp-name{font-weight:600;font-size:14px}
 .emp-meta{font-size:12px;color:var(--muted)}
 
-/* ── SPINNER ── */
+/* SPINNER */
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spinning .7s linear infinite}
 @keyframes spinning{to{transform:rotate(360deg)}}
 
-/* ── EMPTY ── */
+/* EMPTY */
 .empty{text-align:center;padding:40px 20px;color:var(--muted)}
 .empty-ic{font-size:36px;margin-bottom:10px}
 
-/* ── STATS ── */
+/* STATS */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
 .stat{background:var(--snow);border:1px solid var(--border);border-radius:9px;padding:18px}
 .stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-bottom:7px}
 .stat-val{font-family:'DM Sans',sans-serif;font-size:32px;font-weight:700;letter-spacing:-.5px;line-height:1}
 
-/* ── SEARCH ── */
+/* SEARCH */
 .srch-wrap{position:relative;margin-bottom:18px}
 .srch-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
 .srch-inp{padding-left:34px!important}
 
-/* ── PIN SCREEN ── */
+/* PIN SCREEN */
 .pin-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:18px}
 .pin-ic{font-size:50px;margin-bottom:6px}
 .pin-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
@@ -185,10 +174,10 @@ tr.row-d td{background:var(--amber-bg)}
 .pin-inp:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(45,122,67,.1)}
 .pin-err{color:var(--red);font-size:13px;font-weight:500;display:none}
 
-/* ── LOCK BAR ── */
+/* LOCK BAR */
 .lock-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--amber-bg);border:1px solid #fde68a;border-radius:7px;margin-bottom:18px;font-size:13px;color:var(--amber);font-weight:500}
 
-/* ── CONFIG SUB-TABS ── */
+/* CONFIG SUB-TABS */
 .cfg-nav{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px}
 .cfg-btn{padding:9px 18px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;border-radius:6px 6px 0 0}
 .cfg-btn:hover{color:var(--ink);background:var(--cream)}
@@ -196,7 +185,7 @@ tr.row-d td{background:var(--amber-bg)}
 .cfg-panel{display:none}
 .cfg-panel.active{display:block;animation:fadein .18s ease}
 
-/* ── CHAIN PREVIEW ── */
+/* CHAIN PREVIEW */
 .chain-box-wrap{background:var(--cream);border:1px solid var(--border);border-radius:9px;padding:18px 22px;margin-top:18px}
 .chain-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:14px}
 .chain-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -214,7 +203,7 @@ tr.row-d td{background:var(--amber-bg)}
 .cdi-val{font-size:13px;font-weight:600}
 .cdi-email{font-size:11px;color:var(--muted);margin-top:1px}
 
-/* ── MODAL ── */
+/* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(13,17,23,.5);display:flex;align-items:center;justify-content:center;z-index:9999;animation:fadein .15s ease}
 .modal{background:var(--snow);border-radius:14px;padding:28px;width:100%;max-width:500px;box-shadow:var(--shadow-lg);position:relative}
 .modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:5px}
@@ -225,14 +214,13 @@ tr.row-d td{background:var(--amber-bg)}
 .confirm-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;text-align:center;margin-bottom:7px}
 .confirm-msg{font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px;line-height:1.6}
 
-/* ── ACTION BTNS IN TABLE ── */
+/* ACTION BTNS */
 .act-btn{padding:3px 9px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid;font-family:'DM Sans',sans-serif;transition:all .12s}
 .act-void{color:var(--red);border-color:#fca5a5;background:var(--red-bg)}
 .act-void:hover{background:var(--red);color:#fff}
 .act-dis{color:var(--muted);border-color:var(--border);background:var(--cream);cursor:not-allowed}
 
-
-/* ── UPLOAD TAB ── */
+/* UPLOAD TAB */
 .drop-zone{border:2px dashed var(--border);border-radius:10px;padding:40px 28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--cream)}
 .drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-bg)}
 .drop-ic{font-size:44px;margin-bottom:10px}
@@ -245,25 +233,23 @@ tr.row-d td{background:var(--amber-bg)}
 .upload-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative}
 .upload-step:not(:last-child)::after{content:'';position:absolute;top:16px;left:calc(50% + 16px);right:calc(-50% + 16px);height:2px;background:var(--border);z-index:0}
 .upload-step:not(:last-child).done::after{background:var(--accent)}
-.step-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid var(--border);background:var(--snow);color:var(--muted);position:relative;z-index:1;transition:all .2s}
-.upload-step.active .step-num{border-color:var(--accent);background:var(--accent);color:#fff}
-.upload-step.done .step-num{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
-.step-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;text-align:center}
-.upload-step.active .step-lbl,.upload-step.done .step-lbl{color:var(--accent)}
+.ustep-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid var(--border);background:var(--snow);color:var(--muted);position:relative;z-index:1;transition:all .2s}
+.upload-step.active .ustep-num{border-color:var(--accent);background:var(--accent);color:#fff}
+.upload-step.done .ustep-num{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.ustep-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;text-align:center}
+.upload-step.active .ustep-lbl,.upload-step.done .ustep-lbl{color:var(--accent)}
 .sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
 .sum-card{border-radius:8px;padding:14px;border:1.5px solid transparent;text-align:center}
 .sum-total{background:var(--blue-bg);border-color:#bfdbfe}
 .sum-valid{background:var(--accent-bg);border-color:#86efac}
 .sum-error{background:var(--red-bg);border-color:#fca5a5}
 .sum-dupe{background:var(--amber-bg);border-color:#fde68a}
-.sum-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;letter-spacing:-.5px}
+.sum-num{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;line-height:1}
 .sum-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:3px}
 .prog-wrap{margin:14px 0}
 .prog-bar{height:7px;background:var(--border);border-radius:20px;overflow:hidden}
 .prog-fill{height:100%;background:var(--accent);border-radius:20px;transition:width .3s ease;width:0%}
 .prog-lbl{font-size:12px;color:var(--muted);margin-top:5px;text-align:center}
-tr.row-e td{background:var(--red-bg)}
-tr.row-d td{background:var(--amber-bg)}
 .row-ok{color:var(--accent);font-size:12px;font-weight:600}
 .row-er{color:var(--red);font-size:12px;font-weight:600}
 .row-du{color:var(--amber);font-size:12px;font-weight:600}
@@ -274,7 +260,7 @@ tr.row-d td{background:var(--amber-bg)}
 .tmpl-lbl{font-size:14px;font-weight:600;color:var(--blue)}
 .tmpl-hint{font-size:12px;color:var(--muted)}
 
-/* ── RESPONSIVE ── */
+/* RESPONSIVE */
 @media(max-width:768px){
   .hdr-top{padding:0 14px}
   .main{padding:18px 14px}
@@ -284,7 +270,6 @@ tr.row-d td{background:var(--amber-bg)}
   .card{padding:18px}
 }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -302,14 +287,14 @@ tr.row-d td{background:var(--amber-bg)}
     <button class="nav-btn" data-tab="dashboard">Dashboard</button>
     <button class="nav-btn" data-tab="adjust">Adjust Balances</button>
     <button class="nav-btn pin-btn" data-tab="admin" id="adminNavBtn">&#x1F512; Edit &amp; Void</button>
-    <button class="nav-btn cfg-btn" data-tab="config" id="configNavBtn">&#x2699;&#xFE0F; Config</button>
     <button class="nav-btn" data-tab="upload">&#x1F4E4; Upload Staff</button>
+    <button class="nav-btn cfg-btn" data-tab="config" id="configNavBtn">&#x2699;&#xFE0F; Config</button>
   </nav>
 </div>
 
 <div class="main">
 
-<!-- ═══════════════════════════════ SUBMIT LEAVE ═══════════════════════════════ -->
+<!-- ═══ SUBMIT LEAVE ═══ -->
 <div id="tab-submit" class="tab active">
   <div class="sec-hdr"><div class="sec-title">Submit Leave Request</div></div>
   <div class="card">
@@ -323,7 +308,6 @@ tr.row-d td{background:var(--amber-bg)}
       <option disabled selected>Loading employees&hellip;</option>
     </select>
   </div>
-
   <div id="empDetailSection" style="display:none">
     <div class="card" style="margin-top:0">
       <div id="empStrip"></div>
@@ -377,7 +361,7 @@ tr.row-d td{background:var(--amber-bg)}
   </div>
 </div>
 
-<!-- ═══════════════════════════════ HISTORY ═══════════════════════════════ -->
+<!-- ═══ HISTORY ═══ -->
 <div id="tab-history" class="tab">
   <div class="sec-hdr"><div class="sec-title">Leave History</div></div>
   <div class="card">
@@ -394,7 +378,7 @@ tr.row-d td{background:var(--amber-bg)}
           <option value="Casual">Casual</option>
           <option value="Sick">Sick</option>
           <option value="Special">Special</option>
-            <option value="Monthly">Monthly</option>
+          <option value="Monthly">Monthly</option>
         </select>
       </div>
     </div>
@@ -407,7 +391,7 @@ tr.row-d td{background:var(--amber-bg)}
   </div>
 </div>
 
-<!-- ═══════════════════════════════ DASHBOARD ═══════════════════════════════ -->
+<!-- ═══ DASHBOARD ═══ -->
 <div id="tab-dashboard" class="tab">
   <div class="sec-hdr">
     <div class="sec-title">Dashboard</div>
@@ -422,7 +406,7 @@ tr.row-d td{background:var(--amber-bg)}
   <div class="card">
     <div class="card-title">&#x26A0; Negative Balance Alerts</div>
     <div class="card-sub">Employees with any negative balance. New leave submissions blocked for affected types.</div>
-    <div id="negTable"><div class="empty"><div class="empty-ic">&#x2713;</div>Loading&hellip;</div></div>
+    <div id="negTable"><div class="empty"><div class="empty-ic">&#x23F3;</div>Loading&hellip;</div></div>
   </div>
   <div class="card">
     <div class="card-title">Recent Submissions</div>
@@ -430,57 +414,53 @@ tr.row-d td{background:var(--amber-bg)}
   </div>
 </div>
 
-<!-- ═══════════════════════════════ ADJUST BALANCES ═══════════════════════════════ -->
+<!-- ═══ ADJUST BALANCES ═══ -->
 <div id="tab-adjust" class="tab">
   <div class="sec-hdr"><div class="sec-title">Adjust Balances</div></div>
-
-  <!-- ADJUST PIN SCREEN -->
   <div id="adjPinScreen" class="card">
     <div class="pin-screen">
       <div class="pin-ic">&#x1F512;</div>
       <div class="pin-title">Admin Access Required</div>
       <div class="pin-sub">Enter your PIN to access Adjust Balances</div>
       <div class="pin-row">
-        <input type="password" id="adjPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')checkAdjPin()">
+        <input type="password" id="adjPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;">
         <button class="btn btn-g" onclick="checkAdjPin()">Unlock</button>
       </div>
       <div class="pin-err" id="adjPinErr">Incorrect PIN. Please try again.</div>
     </div>
   </div>
-
-  <!-- ADJUST CONTENT -->
   <div id="adjContent" style="display:none">
-  <div class="lock-bar">&#x1F513; Adjust Balances unlocked &nbsp;&middot;&nbsp; All adjustments are logged<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="lockAdj()">Lock</button></div>
-  <div class="card">
-    <div class="card-title">Admin Balance Adjustment</div>
-    <div class="card-sub">Correct balances, apply opening balances or grant Special Occasion leave. All adjustments are logged.</div>
-    <div class="grid2">
-      <div class="fg"><label>Employee</label><select id="adjEmpSel" onchange="loadAdjBal()"><option value="">Select employee&hellip;</option></select></div>
-      <div class="fg"><label>Leave Type</label>
-        <select id="adjType" onchange="loadAdjBal()">
-          <option value="">Select type&hellip;</option>
-          <option value="Annual">Annual Leave</option>
-          <option value="Casual">Casual Leave</option>
-          <option value="Sick">Sick Leave</option>
-          <option value="Special">Special Occasion</option>
-          <option value="Monthly">Monthly Leave</option>
-        </select>
+    <div class="lock-bar">&#x1F513; Adjust Balances unlocked &nbsp;&middot;&nbsp; All adjustments are logged<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="lockAdj()">Lock</button></div>
+    <div class="card">
+      <div class="card-title">Admin Balance Adjustment</div>
+      <div class="card-sub">Correct balances, apply opening balances or grant Special Occasion leave. All adjustments are logged.</div>
+      <div class="grid2">
+        <div class="fg"><label>Employee</label><select id="adjEmpSel" onchange="loadAdjBal()"><option value="">Select employee&hellip;</option></select></div>
+        <div class="fg"><label>Leave Type</label>
+          <select id="adjType" onchange="loadAdjBal()">
+            <option value="">Select type&hellip;</option>
+            <option value="Annual">Annual Leave</option>
+            <option value="Casual">Casual Leave</option>
+            <option value="Sick">Sick Leave</option>
+            <option value="Special">Special Occasion</option>
+            <option value="Monthly">Monthly Leave</option>
+          </select>
+        </div>
+        <div class="fg"><label>Current Balance</label><input type="number" id="adjCurBal" readonly></div>
+        <div class="fg"><label>New Balance</label><input type="number" id="adjNewBal" step="0.01" placeholder="Enter new balance"></div>
+        <div class="fg"><label>Reason</label><input type="text" id="adjReason" placeholder="e.g. Opening balance April 2026"></div>
+        <div class="fg"><label>Admin Name</label><input type="text" id="adjAdmin" placeholder="Your name"></div>
       </div>
-      <div class="fg"><label>Current Balance</label><input type="number" id="adjCurBal" readonly></div>
-      <div class="fg"><label>New Balance</label><input type="number" id="adjNewBal" step="0.01" placeholder="Enter new balance"></div>
-      <div class="fg"><label>Reason</label><input type="text" id="adjReason" placeholder="e.g. Opening balance April 2026"></div>
-      <div class="fg"><label>Admin Name</label><input type="text" id="adjAdmin" placeholder="Your name"></div>
-    </div>
-    <div id="adjAlert"></div>
-    <div class="btn-row">
-      <button class="btn btn-g" onclick="submitAdj()">Apply Adjustment</button>
-      <button class="btn btn-o" onclick="resetAdj()">Reset</button>
+      <div id="adjAlert"></div>
+      <div class="btn-row">
+        <button class="btn btn-g" onclick="submitAdj()">Apply Adjustment</button>
+        <button class="btn btn-o" onclick="resetAdj()">Reset</button>
+      </div>
     </div>
   </div>
-  </div><!-- /adjContent -->
 </div>
 
-<!-- ═══════════════════════════════ EDIT & VOID ═══════════════════════════════ -->
+<!-- ═══ EDIT & VOID ═══ -->
 <div id="tab-admin" class="tab">
   <div class="sec-hdr"><div class="sec-title">&#x1F512; Edit &amp; Void</div></div>
   <div id="adminPinScreen" class="card">
@@ -489,7 +469,7 @@ tr.row-d td{background:var(--amber-bg)}
       <div class="pin-title">Admin Access Required</div>
       <div class="pin-sub">Enter your PIN to access Edit &amp; Void</div>
       <div class="pin-row">
-        <input type="password" id="adminPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')checkAdminPin()">
+        <input type="password" id="adminPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;">
         <button class="btn btn-g" onclick="checkAdminPin()">Unlock</button>
       </div>
       <div class="pin-err" id="adminPinErr">Incorrect PIN. Please try again.</div>
@@ -536,7 +516,7 @@ tr.row-d td{background:var(--amber-bg)}
             <option value="Casual">Casual</option>
             <option value="Sick">Sick</option>
             <option value="Special">Special</option>
-          <option value="Monthly">Monthly</option>
+            <option value="Monthly">Monthly</option>
           </select>
         </div>
       </div>
@@ -551,7 +531,108 @@ tr.row-d td{background:var(--amber-bg)}
   </div>
 </div>
 
-<!-- ═══════════════════════════════ CONFIG ═══════════════════════════════ -->
+<!-- ═══ UPLOAD STAFF ═══ -->
+<div id="tab-upload" class="tab">
+  <div class="sec-hdr"><div class="sec-title">&#x1F4E4; Upload Staff</div></div>
+  <div id="uploadPinScreen" class="card">
+    <div class="pin-screen">
+      <div class="pin-ic">&#x1F4E4;</div>
+      <div class="pin-title">Admin Access Required</div>
+      <div class="pin-sub">Enter your PIN to upload new staff</div>
+      <div class="pin-row">
+        <input type="password" id="uploadPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;">
+        <button class="btn btn-g" onclick="checkUploadPin()">Unlock</button>
+      </div>
+      <div class="pin-err" id="uploadPinErr">Incorrect PIN. Please try again.</div>
+    </div>
+  </div>
+  <div id="uploadContent" style="display:none">
+    <div class="lock-bar">&#x1F513; Upload Staff unlocked &nbsp;&middot;&nbsp; New employees only &mdash; existing staff are never overwritten<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="lockUpload()">Lock</button></div>
+    <div class="upload-steps">
+      <div class="upload-step active" id="ustep1"><div class="ustep-num">1</div><div class="ustep-lbl">Input Data</div></div>
+      <div class="upload-step" id="ustep2"><div class="ustep-num">2</div><div class="ustep-lbl">Review</div></div>
+      <div class="upload-step" id="ustep3"><div class="ustep-num">3</div><div class="ustep-lbl">Upload</div></div>
+    </div>
+    <div id="upanel-1">
+      <div class="card">
+        <div class="card-title">Download Template</div>
+        <div class="tmpl-row">
+          <div class="tmpl-icon">&#x1F4CB;</div>
+          <div class="tmpl-txt">
+            <div class="tmpl-lbl">MJSR_Staff_Upload_Template.xlsx</div>
+            <div class="tmpl-hint">Columns: Employee_ID (optional), Name, Designation, Department, Tier (T1-T5), Active. Delete sample rows before uploading your data.</div>
+          </div>
+          <button class="btn btn-b btn-sm" onclick="downloadTemplate()">&#x2B07; Download</button>
+        </div>
+        <div class="alert alert-i"><i>&#x2139;</i><span><strong>Valid Departments:</strong> ADMINISTRATION, SEC &amp; PR &nbsp;|&nbsp; ACCOUNTS &amp; FINANCE &nbsp;|&nbsp; INTERNAL AUDIT &nbsp;|&nbsp; CHAIRLIFT &amp; TECHNICAL &nbsp;|&nbsp; ELECTRICAL &nbsp;|&nbsp; CIVIL &amp; CONSTRUCTION &nbsp;|&nbsp; RESTAURANT (F&amp;B) &nbsp;|&nbsp; SALES &amp; SERVICES &nbsp;|&nbsp; MEDIA &nbsp;|&nbsp; SAMSONS-INN RESORT &nbsp;|&nbsp; MINGORA GUEST HOUSE &nbsp;&nbsp;<strong>Tiers:</strong> T1=General Staff &nbsp;T2=Supervisor &nbsp;T3=AM &nbsp;T4=SNR Manager &nbsp;T5=DGM</span></div>
+      </div>
+      <div class="card" style="margin-top:0">
+        <div class="cfg-nav" style="margin-bottom:20px">
+          <button class="cfg-btn active" id="methodFileBtn" onclick="switchUploadMethod('file', this)">&#x1F4C2; Upload Excel File</button>
+          <button class="cfg-btn" id="methodPasteBtn" onclick="switchUploadMethod('paste', this)">&#x1F4CB; Paste from Excel</button>
+        </div>
+        <div id="method-file">
+          <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInp').click()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+            <div class="drop-ic">&#x1F4C1;</div>
+            <div class="drop-title">Click to select or drag &amp; drop</div>
+            <div class="drop-sub">Accepts .xlsx files only</div>
+            <div id="fileChip" style="display:none" class="file-chip"><span>&#x1F4C4;</span><span id="fileName"></span></div>
+          </div>
+          <input type="file" id="fileInp" style="display:none" accept=".xlsx" onchange="handleFileSelect(event)">
+          <div id="fileAlert"></div>
+          <div class="btn-row">
+            <button class="btn btn-g" id="parseFileBtn" onclick="parseFile()" disabled>Parse File &rarr;</button>
+          </div>
+        </div>
+        <div id="method-paste" style="display:none">
+          <div class="card-sub">Copy your data from Excel including the header row and paste below. Column order: <strong>Employee_ID, Name, Designation, Department, Tier, Active</strong></div>
+          <textarea id="pasteArea" class="paste-area" placeholder="Paste Excel data here (tab-separated, include header row)..."></textarea>
+          <div id="pasteAlert"></div>
+          <div class="btn-row">
+            <button class="btn btn-g" onclick="parsePaste()">Parse Data &rarr;</button>
+            <button class="btn btn-o" onclick="document.getElementById('pasteArea').value = ''">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="upanel-2" style="display:none">
+      <div class="card">
+        <div class="card-title">Review Parsed Data</div>
+        <div class="card-sub">Green rows will be uploaded. Red rows have errors and will be skipped. Amber rows are duplicates already in the system and will be skipped.</div>
+        <div class="sum-grid">
+          <div class="sum-card sum-total"><div class="sum-num" id="sumTotal" style="color:var(--blue)">0</div><div class="sum-lbl">Total Rows</div></div>
+          <div class="sum-card sum-valid"><div class="sum-num" id="sumValid" style="color:var(--accent)">0</div><div class="sum-lbl">Ready</div></div>
+          <div class="sum-card sum-error"><div class="sum-num" id="sumErrors" style="color:var(--red)">0</div><div class="sum-lbl">Errors</div></div>
+          <div class="sum-card sum-dupe"><div class="sum-num" id="sumDupes" style="color:var(--amber)">0</div><div class="sum-lbl">Duplicates</div></div>
+        </div>
+        <div id="reviewAlert"></div>
+        <div class="tbl-wrap" id="reviewTable"></div>
+        <div class="btn-row">
+          <button class="btn btn-o" onclick="goUploadStep(1)">&#x2190; Back</button>
+          <button class="btn btn-g" id="proceedBtn" onclick="goUploadStep(3)" disabled>Confirm Upload &rarr;</button>
+        </div>
+      </div>
+    </div>
+    <div id="upanel-3" style="display:none">
+      <div class="card">
+        <div class="card-title">Confirm &amp; Upload</div>
+        <div id="uploadSummary" style="margin-bottom:16px"></div>
+        <div class="alert alert-w"><i>&#x26A0;</i><span>Only <strong>Ready</strong> rows will be added. Errors and duplicates are excluded. Existing employees are never overwritten.</span></div>
+        <div id="progSection" style="display:none">
+          <div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="progFill"></div></div><div class="prog-lbl" id="progLbl">Uploading&hellip;</div></div>
+        </div>
+        <div id="uploadFinalAlert"></div>
+        <div class="btn-row">
+          <button class="btn btn-o" id="backBtn3" onclick="goUploadStep(2)">&#x2190; Back</button>
+          <button class="btn btn-g" id="doUploadBtn" onclick="executeUpload()">Upload to System</button>
+          <button class="btn btn-o" id="startOverBtn" style="display:none" onclick="resetUpload()">Start Over</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONFIG ═══ -->
 <div id="tab-config" class="tab">
   <div class="sec-hdr"><div class="sec-title">&#x2699;&#xFE0F; Configuration</div></div>
   <div id="cfgPinScreen" class="card">
@@ -560,7 +641,7 @@ tr.row-d td{background:var(--amber-bg)}
       <div class="pin-title">Configuration Access</div>
       <div class="pin-sub">Enter your PIN to manage system configuration</div>
       <div class="pin-row">
-        <input type="password" id="cfgPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')checkCfgPin()">
+        <input type="password" id="cfgPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;">
         <button class="btn btn-g" onclick="checkCfgPin()">Unlock</button>
       </div>
       <div class="pin-err" id="cfgPinErr">Incorrect PIN. Please try again.</div>
@@ -569,12 +650,11 @@ tr.row-d td{background:var(--amber-bg)}
   <div id="cfgContent" style="display:none">
     <div class="lock-bar">&#x2699;&#xFE0F; Config mode &nbsp;&middot;&nbsp; Changes save to Google Sheets immediately<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="lockCfg()">Lock</button></div>
     <div class="cfg-nav">
-      <button class="cfg-btn active" onclick="showCfgPanel('tiers',this)">&#x1F4CA; Tiers</button>
-      <button class="cfg-btn" onclick="showCfgPanel('depts',this)">&#x1F3E2; Departments</button>
-      <button class="cfg-btn" onclick="showCfgPanel('gm',this)">&#x1F464; GM &amp; System</button>
-      <button class="cfg-btn" onclick="showCfgPanel('chain',this)">&#x1F517; Approval Chain</button>
+      <button class="cfg-btn active" onclick="showCfgPanel('tiers', this)">&#x1F4CA; Tiers</button>
+      <button class="cfg-btn" onclick="showCfgPanel('depts', this)">&#x1F3E2; Departments</button>
+      <button class="cfg-btn" onclick="showCfgPanel('gm', this)">&#x1F464; GM &amp; System</button>
+      <button class="cfg-btn" onclick="showCfgPanel('chain', this)">&#x1F517; Approval Chain</button>
     </div>
-    <!-- TIERS -->
     <div id="cfgp-tiers" class="cfg-panel active">
       <div class="card accent-l">
         <div class="card-title">Staff Tier Configuration</div>
@@ -598,7 +678,6 @@ tr.row-d td{background:var(--amber-bg)}
         </div>
       </div>
     </div>
-    <!-- DEPTS -->
     <div id="cfgp-depts" class="cfg-panel">
       <div class="card blue-l" style="padding-bottom:16px">
         <div style="display:flex;align-items:center;justify-content:space-between">
@@ -611,7 +690,6 @@ tr.row-d td{background:var(--amber-bg)}
         <div id="deptAlert"></div>
       </div>
     </div>
-    <!-- GM -->
     <div id="cfgp-gm" class="cfg-panel">
       <div class="card amber-l">
         <div class="card-title">GM &amp; System Settings</div>
@@ -635,7 +713,6 @@ tr.row-d td{background:var(--amber-bg)}
         <div id="gmSummaryContent"></div>
       </div>
     </div>
-    <!-- CHAIN -->
     <div id="cfgp-chain" class="cfg-panel">
       <div class="card">
         <div class="card-title">&#x1F517; Approval Chain Preview</div>
@@ -650,118 +727,9 @@ tr.row-d td{background:var(--amber-bg)}
   </div>
 </div>
 
-
-<!-- ═══════════════════════════════ UPLOAD STAFF ═══════════════════════════════ -->
-<div id="tab-upload" class="tab">
-  <div class="sec-hdr"><div class="sec-title">&#x1F4E4; Upload Staff</div></div>
-
-  <div id="uploadPinScreen" class="card">
-    <div class="pin-screen">
-      <div class="pin-ic">&#x1F4E4;</div>
-      <div class="pin-title">Admin Access Required</div>
-      <div class="pin-sub">Enter your PIN to upload new staff</div>
-      <div class="pin-row">
-        <input type="password" id="uploadPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')checkUploadPin()">
-        <button class="btn btn-g" onclick="checkUploadPin()">Unlock</button>
-      </div>
-      <div class="pin-err" id="uploadPinErr">Incorrect PIN. Please try again.</div>
-    </div>
-  </div>
-
-  <div id="uploadContent" style="display:none">
-    <div class="lock-bar">&#x1F513; Upload Staff unlocked &nbsp;&middot;&nbsp; New employees only &mdash; existing staff are never overwritten<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="lockUpload()">Lock</button></div>
-
-    <div class="upload-steps">
-      <div class="upload-step active" id="ustep1"><div class="step-num">1</div><div class="step-lbl">Input Data</div></div>
-      <div class="upload-step" id="ustep2"><div class="step-num">2</div><div class="step-lbl">Review</div></div>
-      <div class="upload-step" id="ustep3"><div class="step-num">3</div><div class="step-lbl">Upload</div></div>
-    </div>
-
-    <div id="upanel-1">
-      <div class="card">
-        <div class="card-title">Download Template</div>
-        <div class="tmpl-row">
-          <div class="tmpl-icon">&#x1F4CB;</div>
-          <div class="tmpl-txt">
-            <div class="tmpl-lbl">MJSR_Staff_Upload_Template.xlsx</div>
-            <div class="tmpl-hint">Columns: Employee_ID (optional), Name, Designation, Department, Tier (T1-T5), Active. Delete sample rows before uploading.</div>
-          </div>
-          <button class="btn btn-b btn-sm" onclick="downloadTemplate()">&#x2B07; Download</button>
-        </div>
-        <div class="alert alert-i"><i>&#x2139;</i><span><strong>Valid Departments:</strong> ADMINISTRATION, SEC &amp; PR &nbsp;|&nbsp; ACCOUNTS &amp; FINANCE &nbsp;|&nbsp; INTERNAL AUDIT &nbsp;|&nbsp; CHAIRLIFT &amp; TECHNICAL &nbsp;|&nbsp; ELECTRICAL &nbsp;|&nbsp; CIVIL &amp; CONSTRUCTION &nbsp;|&nbsp; RESTAURANT (F&amp;B) &nbsp;|&nbsp; SALES &amp; SERVICES &nbsp;|&nbsp; MEDIA &nbsp;|&nbsp; SAMSONS-INN RESORT &nbsp;|&nbsp; MINGORA GUEST HOUSE &nbsp;&nbsp;<strong>Tiers:</strong> T1=General Staff &nbsp;T2=Supervisor &nbsp;T3=AM &nbsp;T4=SNR Manager &nbsp;T5=DGM</span></div>
-      </div>
-
-      <div class="card" style="margin-top:0">
-        <div class="cfg-nav" style="margin-bottom:20px">
-          <button class="cfg-btn active" onclick="switchUploadMethod('file',this)">&#x1F4C2; Upload Excel File</button>
-          <button class="cfg-btn" onclick="switchUploadMethod('paste',this)">&#x1F4CB; Paste from Excel</button>
-        </div>
-        <div id="method-file">
-          <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInp').click()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-            <div class="drop-ic">&#x1F4C1;</div>
-            <div class="drop-title">Click to select or drag &amp; drop</div>
-            <div class="drop-sub">Accepts .xlsx files only</div>
-            <div id="fileChip" style="display:none" class="file-chip"><span>&#x1F4C4;</span><span id="fileName"></span></div>
-          </div>
-          <input type="file" id="fileInp" style="display:none" accept=".xlsx" onchange="handleFileSelect(event)">
-          <div id="fileAlert"></div>
-          <div class="btn-row">
-            <button class="btn btn-g" id="parseFileBtn" onclick="parseFile()" disabled>Parse File &rarr;</button>
-          </div>
-        </div>
-        <div id="method-paste" style="display:none">
-          <div class="card-sub">Copy your data from Excel including the header row and paste below. Column order: <strong>Employee_ID, Name, Designation, Department, Tier, Active</strong></div>
-          <textarea id="pasteArea" class="paste-area" placeholder="Paste Excel data here (Tab-separated, include header row)..."></textarea>
-          <div id="pasteAlert"></div>
-          <div class="btn-row">
-            <button class="btn btn-g" onclick="parsePaste()">Parse Data &rarr;</button>
-            <button class="btn btn-o" onclick="document.getElementById('pasteArea').value=''">Clear</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="upanel-2" style="display:none">
-      <div class="card">
-        <div class="card-title">Review Parsed Data</div>
-        <div class="card-sub">Green rows will be uploaded. Red rows have errors and will be skipped. Amber rows are duplicates already in the system and will be skipped.</div>
-        <div class="sum-grid">
-          <div class="sum-card sum-total"><div class="sum-num" id="sumTotal" style="color:var(--blue)">0</div><div class="sum-lbl">Total Rows</div></div>
-          <div class="sum-card sum-valid"><div class="sum-num" id="sumValid" style="color:var(--accent)">0</div><div class="sum-lbl">Ready</div></div>
-          <div class="sum-card sum-error"><div class="sum-num" id="sumErrors" style="color:var(--red)">0</div><div class="sum-lbl">Errors</div></div>
-          <div class="sum-card sum-dupe"><div class="sum-num" id="sumDupes" style="color:var(--amber)">0</div><div class="sum-lbl">Duplicates</div></div>
-        </div>
-        <div id="reviewAlert"></div>
-        <div class="tbl-wrap" id="reviewTable"></div>
-        <div class="btn-row">
-          <button class="btn btn-o" onclick="goUploadStep(1)">&#x2190; Back</button>
-          <button class="btn btn-g" id="proceedBtn" onclick="goUploadStep(3)" disabled>Confirm Upload &rarr;</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="upanel-3" style="display:none">
-      <div class="card">
-        <div class="card-title">Confirm &amp; Upload</div>
-        <div id="uploadSummary" style="margin-bottom:16px"></div>
-        <div class="alert alert-w"><i>&#x26A0;</i><span>Only <strong>Ready</strong> rows will be added. Errors and duplicates are excluded. Existing employees are never overwritten.</span></div>
-        <div id="progSection" style="display:none">
-          <div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="progFill"></div></div><div class="prog-lbl" id="progLbl">Uploading&hellip;</div></div>
-        </div>
-        <div id="uploadFinalAlert"></div>
-        <div class="btn-row">
-          <button class="btn btn-o" id="backBtn3" onclick="goUploadStep(2)">&#x2190; Back</button>
-          <button class="btn btn-g" id="doUploadBtn" onclick="executeUpload()">Upload to System</button>
-          <button class="btn btn-o" id="startOverBtn" style="display:none" onclick="resetUpload()">Start Over</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 </div><!-- /main -->
 
-<!-- VOID CONFIRM MODAL -->
+<!-- VOID MODAL -->
 <div id="voidModal" class="modal-bg" style="display:none">
   <div class="modal">
     <div class="confirm-ic">&#x26A0;&#xFE0F;</div>
@@ -804,77 +772,163 @@ tr.row-d td{background:var(--amber-bg)}
 <script>
 'use strict';
 
-// ─── CONFIG ───────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybU2ee__bYCfvONE0BxcH0q2_bNeInCyyGG-eD00xGUauPCf8pXAiUdoCB8pErwFKH/exec';
 const PIN = '1234';
 
-// ─── STATE ────────────────────────────────────────────────
-let employees    = [];
-let curEmp       = null;
-let curBal       = null;
-let histAll      = [];
-let voidAll      = [];
-let voidPending  = null;
-let adminOpen    = false;
-let cfgOpen      = false;
-let tiersData    = [];
-let deptsData    = [];
-let gmCfg        = {};
-let editingDept  = null;
+const VALID_DEPTS = ['ADMINISTRATION, SEC & PR','ACCOUNTS & FINANCE','INTERNAL AUDIT','CHAIRLIFT & TECHNICAL','ELECTRICAL','CIVIL & CONSTRUCTION','RESTAURANT (F&B)','SALES & SERVICES','MEDIA','SAMSONS-INN RESORT','MINGORA GUEST HOUSE'];
+const VALID_TIERS = ['T1','T2','T3','T4','T5'];
 
-// ─── INIT ─────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // Wire nav buttons
-  document.querySelectorAll('#mainNav .nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => navTo(btn.dataset.tab, btn));
+let employees   = [];
+let curEmp      = null;
+let curBal      = null;
+let histAll     = [];
+let voidAll     = [];
+let voidPending = null;
+let adminOpen   = false;
+let cfgOpen     = false;
+let tiersData   = [];
+let deptsData   = [];
+let gmCfg       = {};
+let editingDept = null;
+let uploadRows  = [];
+let uploadExisting = [];
+let selectedFile = null;
+
+// ── INIT ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#mainNav .nav-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { navTo(btn.dataset.tab, btn); });
   });
-  // Load data
+  document.getElementById('adjPinInp').addEventListener('keydown', function(e) { if (e.key === 'Enter') checkAdjPin(); });
+  document.getElementById('adminPinInp').addEventListener('keydown', function(e) { if (e.key === 'Enter') checkAdminPin(); });
+  document.getElementById('uploadPinInp').addEventListener('keydown', function(e) { if (e.key === 'Enter') checkUploadPin(); });
+  document.getElementById('cfgPinInp').addEventListener('keydown', function(e) { if (e.key === 'Enter') checkCfgPin(); });
   loadEmployees();
-  const t = new Date().toISOString().split('T')[0];
+  var t = new Date().toISOString().split('T')[0];
   document.getElementById('startDate').value = t;
   document.getElementById('endDate').value   = t;
 });
 
-// ─── NAVIGATION ───────────────────────────────────────────
+// ── NAV ───────────────────────────────────────────────────
 function navTo(tab, btn) {
-  document.querySelectorAll('.tab').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('tab-' + tab).classList.add('active');
   if (btn) btn.classList.add('active');
   if (tab === 'dashboard') loadDashboard();
-  if (['history','adjust','admin','config'].includes(tab)) fillSelects();
-  if (tab === 'adjust') setTimeout(() => { if(document.getElementById('adjContent').style.display==='none') document.getElementById('adjPinInp').focus(); }, 80);
-  if (tab === 'upload') setTimeout(() => { if(document.getElementById('uploadContent').style.display==='none') document.getElementById('uploadPinInp').focus(); }, 80);
+  if (['history','adjust','admin','upload','config'].includes(tab)) fillSelects();
+  if (tab === 'adjust' && document.getElementById('adjContent').style.display === 'none') {
+    setTimeout(function() { document.getElementById('adjPinInp').focus(); }, 80);
+  }
+  if (tab === 'admin' && !adminOpen) {
+    setTimeout(function() { document.getElementById('adminPinInp').focus(); }, 80);
+  }
+  if (tab === 'upload' && document.getElementById('uploadContent').style.display === 'none') {
+    setTimeout(function() { document.getElementById('uploadPinInp').focus(); }, 80);
+  }
   if (tab === 'config' && cfgOpen) loadAllCfg();
-  if (tab === 'config' && !cfgOpen) setTimeout(() => document.getElementById('cfgPinInp').focus(), 80);
-  if (tab === 'admin'  && !adminOpen) setTimeout(() => document.getElementById('adminPinInp').focus(), 80);
+  if (tab === 'config' && !cfgOpen) {
+    setTimeout(function() { document.getElementById('cfgPinInp').focus(); }, 80);
+  }
 }
 
-// ─── API ──────────────────────────────────────────────────
+// ── API ───────────────────────────────────────────────────
 async function api(payload) {
   try {
-    const r = await fetch(SCRIPT_URL, {
+    var r = await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
     return await r.json();
-  } catch (e) {
+  } catch(e) {
     return { success: false, message: 'Network error: ' + e.message };
   }
 }
 
-// ─── ALERT ────────────────────────────────────────────────
+// ── ALERT ─────────────────────────────────────────────────
 function showAlert(id, type, msg) {
-  const ic = { s:'&#x2713;', e:'&#x2717;', i:'&#x2139;', w:'&#x26A0;' };
-  const cls = { s:'alert-s', e:'alert-e', i:'alert-i', w:'alert-w' };
-  document.getElementById(id).innerHTML =
-    '<div class="alert ' + cls[type] + '"><i>' + ic[type] + '</i><span>' + msg + '</span></div>';
+  var ic  = { s:'&#x2713;', e:'&#x2717;', i:'&#x2139;', w:'&#x26A0;' };
+  var cls = { s:'alert-s',  e:'alert-e',  i:'alert-i',  w:'alert-w'  };
+  document.getElementById(id).innerHTML = '<div class="alert ' + cls[type] + '"><i>' + ic[type] + '</i><span>' + msg + '</span></div>';
 }
 
-// ─── LOAD EMPLOYEES ───────────────────────────────────────
+function clearAlert(id) { document.getElementById(id).innerHTML = ''; }
+
+// ── PIN HELPERS ───────────────────────────────────────────
+function pinCheck(inputId, errId, onSuccess) {
+  if (document.getElementById(inputId).value === PIN) {
+    onSuccess();
+  } else {
+    document.getElementById(errId).style.display = 'block';
+    document.getElementById(inputId).value = '';
+    setTimeout(function() { document.getElementById(errId).style.display = 'none'; }, 3000);
+  }
+}
+
+function checkAdjPin() {
+  pinCheck('adjPinInp', 'adjPinErr', function() {
+    document.getElementById('adjPinScreen').style.display = 'none';
+    document.getElementById('adjContent').style.display   = 'block';
+    fillSelects();
+  });
+}
+function lockAdj() {
+  document.getElementById('adjPinScreen').style.display = 'block';
+  document.getElementById('adjContent').style.display   = 'none';
+  document.getElementById('adjPinInp').value = '';
+}
+
+function checkAdminPin() {
+  pinCheck('adminPinInp', 'adminPinErr', function() {
+    adminOpen = true;
+    document.getElementById('adminPinScreen').style.display = 'none';
+    document.getElementById('adminContent').style.display   = 'block';
+    document.getElementById('adminNavBtn').classList.add('unlocked');
+    fillSelects();
+  });
+}
+function lockAdmin() {
+  adminOpen = false;
+  document.getElementById('adminPinScreen').style.display = 'block';
+  document.getElementById('adminContent').style.display   = 'none';
+  document.getElementById('adminNavBtn').classList.remove('unlocked');
+  document.getElementById('adminNavBtn').innerHTML = '&#x1F512; Edit &amp; Void';
+  document.getElementById('adminPinInp').value = '';
+}
+
+function checkUploadPin() {
+  pinCheck('uploadPinInp', 'uploadPinErr', function() {
+    document.getElementById('uploadPinScreen').style.display = 'none';
+    document.getElementById('uploadContent').style.display   = 'block';
+  });
+}
+function lockUpload() {
+  document.getElementById('uploadPinScreen').style.display = 'block';
+  document.getElementById('uploadContent').style.display   = 'none';
+  document.getElementById('uploadPinInp').value = '';
+}
+
+function checkCfgPin() {
+  pinCheck('cfgPinInp', 'cfgPinErr', function() {
+    cfgOpen = true;
+    document.getElementById('cfgPinScreen').style.display = 'none';
+    document.getElementById('cfgContent').style.display   = 'block';
+    document.getElementById('configNavBtn').classList.add('unlocked');
+    loadAllCfg();
+  });
+}
+function lockCfg() {
+  cfgOpen = false;
+  document.getElementById('cfgPinScreen').style.display = 'block';
+  document.getElementById('cfgContent').style.display   = 'none';
+  document.getElementById('configNavBtn').classList.remove('unlocked');
+  document.getElementById('cfgPinInp').value = '';
+}
+
+// ── EMPLOYEES ─────────────────────────────────────────────
 async function loadEmployees() {
-  const r = await api({ action: 'getEmployees' });
+  var r = await api({ action: 'getEmployees' });
   if (!r.success) { showAlert('submitAlert', 'e', 'Failed to load employees: ' + r.message); return; }
   employees = r.employees;
   renderEmpList(employees);
@@ -882,35 +936,34 @@ async function loadEmployees() {
 }
 
 function renderEmpList(list) {
-  document.getElementById('empSelect').innerHTML = list.map(e =>
-    '<option value="' + e.id + '" data-n="' + e.name + '" data-d="' + e.designation + '" data-dept="' + e.department + '">' +
-    e.name + ' \u2014 ' + e.designation + ' (' + e.department + ')</option>'
-  ).join('');
+  document.getElementById('empSelect').innerHTML = list.map(function(e) {
+    return '<option value="' + e.id + '" data-n="' + e.name + '" data-d="' + e.designation + '" data-dept="' + e.department + '">' + e.name + ' \u2014 ' + e.designation + ' (' + e.department + ')</option>';
+  }).join('');
 }
 
 function filterEmployees() {
-  const q = document.getElementById('empSearch').value.toLowerCase();
-  renderEmpList(employees.filter(e =>
-    e.name.toLowerCase().includes(q) ||
-    e.department.toLowerCase().includes(q) ||
-    e.designation.toLowerCase().includes(q)
-  ));
+  var q = document.getElementById('empSearch').value.toLowerCase();
+  renderEmpList(employees.filter(function(e) {
+    return e.name.toLowerCase().includes(q) || e.department.toLowerCase().includes(q) || e.designation.toLowerCase().includes(q);
+  }));
 }
 
 function fillSelects() {
-  ['histEmpSel','adjEmpSel','editEmpSel','voidEmpSel'].forEach(id => {
-    const el = document.getElementById(id);
+  ['histEmpSel','adjEmpSel','editEmpSel','voidEmpSel'].forEach(function(id) {
+    var el = document.getElementById(id);
     if (!el) return;
-    const v = el.value;
-    const def = id === 'histEmpSel' ? '<option value="">All Employees</option>' : '<option value="">Select employee\u2026</option>';
-    el.innerHTML = def + employees.map(e => '<option value="' + e.id + '">' + e.name + ' (' + e.department + ')</option>').join('');
+    var v   = el.value;
+    var def = id === 'histEmpSel' ? '<option value="">All Employees</option>' : '<option value="">Select employee\u2026</option>';
+    el.innerHTML = def + employees.map(function(e) {
+      return '<option value="' + e.id + '">' + e.name + ' (' + e.department + ')</option>';
+    }).join('');
     el.value = v;
   });
 }
 
 async function onEmployeeSelect() {
-  const sel = document.getElementById('empSelect');
-  const opt = sel.options[sel.selectedIndex];
+  var sel = document.getElementById('empSelect');
+  var opt = sel.options[sel.selectedIndex];
   if (!opt || !opt.value) return;
   curEmp = { id: opt.value, name: opt.dataset.n, designation: opt.dataset.d, department: opt.dataset.dept };
   document.getElementById('empStrip').innerHTML =
@@ -920,7 +973,7 @@ async function onEmployeeSelect() {
     '<div style="margin-left:auto;font-size:11px;color:var(--muted)">' + curEmp.id + '</div></div>';
   document.getElementById('empDetailSection').style.display = 'block';
   document.getElementById('balDisplay').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--muted)">Loading&hellip;</div>';
-  const r = await api({ action: 'getBalance', employeeId: curEmp.id });
+  var r = await api({ action: 'getBalance', employeeId: curEmp.id });
   if (!r.success) { showAlert('submitAlert', 'e', r.message); return; }
   curBal = r.balance;
   renderBal(curBal);
@@ -928,68 +981,67 @@ async function onEmployeeSelect() {
 }
 
 function renderBal(b) {
-  const types = ['Annual','Casual','Sick','Special','Monthly'];
-  const cls   = ['annual','casual','sick','special','monthly'];
-  const lbls  = ['Annual Leave','Casual Leave','Sick Leave','Special Occasion','Monthly Leave'];
-  let h = '', w = '';
-  types.forEach((t, i) => {
-    const v = parseFloat(b[t]) || 0;
-    const neg = v < 0;
+  var types = ['Annual','Casual','Sick','Special','Monthly'];
+  var cls   = ['annual','casual','sick','special','monthly'];
+  var lbls  = ['Annual Leave','Casual Leave','Sick Leave','Special Occasion','Monthly Leave'];
+  var h = '', w = '';
+  types.forEach(function(t, i) {
+    var v = parseFloat(b[t] || 0);
+    var neg = v < 0;
     h += '<div class="bal-card ' + cls[i] + (neg ? ' neg' : '') + '">' +
          '<div class="bal-lbl">' + lbls[i] + '</div>' +
          '<div class="bal-val' + (neg ? ' neg' : '') + '">' + v.toFixed(2) + '</div>' +
          '<div class="bal-unit">days remaining</div></div>';
     if (neg) w += '<div class="bal-warn">&#x26A0; ' + lbls[i] + ' is negative (' + v.toFixed(2) + ' days). Submissions blocked.</div>';
   });
-  document.getElementById('balDisplay').innerHTML   = h;
-  document.getElementById('balWarnings').innerHTML  = w;
+  document.getElementById('balDisplay').innerHTML  = h;
+  document.getElementById('balWarnings').innerHTML = w;
 }
 
-// ─── LEAVE SUBMIT ─────────────────────────────────────────
+// ── LEAVE SUBMIT ──────────────────────────────────────────
 function onLeaveTypeChange() { onDaysChange(); updateSubmitBtn(); }
 
 function onDaysChange() {
   if (!curBal) return;
-  const type = document.getElementById('leaveType').value;
-  const days = parseFloat(document.getElementById('leaveDays').value);
-  const el   = document.getElementById('balPreview');
+  var type = document.getElementById('leaveType').value;
+  var days = parseFloat(document.getElementById('leaveDays').value);
+  var el   = document.getElementById('balPreview');
   if (!type || isNaN(days) || days <= 0) { el.style.display = 'none'; return; }
-  const bal  = parseFloat(curBal[type]) || 0;
-  document.getElementById('balPreviewTxt').textContent =
-    type + ' Leave: ' + bal.toFixed(2) + ' available \u2192 ' + (bal - days).toFixed(2) + ' remaining.';
+  var bal = parseFloat(curBal[type] || 0);
+  document.getElementById('balPreviewTxt').textContent = type + ' Leave: ' + bal.toFixed(2) + ' available \u2192 ' + (bal - days).toFixed(2) + ' remaining.';
   el.style.display = 'flex';
   updateSubmitBtn();
 }
 
 function updateSubmitBtn() {
-  const btn  = document.getElementById('submitBtn');
-  const type = document.getElementById('leaveType').value;
-  const days = parseFloat(document.getElementById('leaveDays').value);
+  var btn  = document.getElementById('submitBtn');
+  var type = document.getElementById('leaveType').value;
+  var days = parseFloat(document.getElementById('leaveDays').value);
   if (!curEmp || !curBal || !type || isNaN(days) || days <= 0) { btn.disabled = true; return; }
-  const bal  = parseFloat(curBal[type]) || 0;
+  var bal = parseFloat(curBal[type] || 0);
   btn.disabled = bal <= 0 || days > bal;
 }
 
 async function submitLeave() {
-  const btn  = document.getElementById('submitBtn');
-  const type = document.getElementById('leaveType').value;
-  const days = parseFloat(document.getElementById('leaveDays').value);
-  const s    = document.getElementById('startDate').value;
-  const e    = document.getElementById('endDate').value;
-  const by   = document.getElementById('submittedBy').value.trim();
-  const note = document.getElementById('leaveNotes').value.trim();
+  var btn  = document.getElementById('submitBtn');
+  var type = document.getElementById('leaveType').value;
+  var days = parseFloat(document.getElementById('leaveDays').value);
+  var s    = document.getElementById('startDate').value;
+  var e    = document.getElementById('endDate').value;
+  var by   = document.getElementById('submittedBy').value.trim();
+  var note = document.getElementById('leaveNotes').value.trim();
   if (!type || isNaN(days) || days <= 0 || !s || !e || !by) { showAlert('submitAlert','e','Please fill in all required fields.'); return; }
   if (new Date(e) < new Date(s)) { showAlert('submitAlert','e','End date cannot be before start date.'); return; }
   btn.innerHTML = '<span class="spin"></span> Submitting&hellip;';
   btn.disabled  = true;
-  const r = await api({ action:'submitLeave', employeeId:curEmp.id, leaveType:type, days, startDate:s, endDate:e, submittedBy:by, notes:note });
+  var r = await api({ action:'submitLeave', employeeId:curEmp.id, leaveType:type, days:days, startDate:s, endDate:e, submittedBy:by, notes:note });
   btn.innerHTML = 'Submit Leave Request';
   if (r.success) {
     showAlert('submitAlert','s','&#x2713; ' + r.message + ' | Log: ' + r.logId + ' | ' + r.balanceBefore.toFixed(2) + ' \u2192 ' + r.balanceAfter.toFixed(2) + ' days');
     curBal[type] = r.balanceAfter;
     renderBal(curBal);
-    document.getElementById('leaveDays').value  = '';
-    document.getElementById('leaveType').value  = '';
+    document.getElementById('leaveDays').value = '';
+    document.getElementById('leaveType').value = '';
     document.getElementById('balPreview').style.display = 'none';
     updateSubmitBtn();
   } else {
@@ -1002,439 +1054,142 @@ function resetForm() {
   document.getElementById('empSelect').selectedIndex = -1;
   document.getElementById('empSearch').value = '';
   document.getElementById('empDetailSection').style.display = 'none';
-  document.getElementById('submitAlert').innerHTML = '';
-  ['leaveType','leaveDays','leaveNotes','submittedBy'].forEach(id => document.getElementById(id).value = '');
+  clearAlert('submitAlert');
+  ['leaveType','leaveDays','leaveNotes','submittedBy'].forEach(function(id) { document.getElementById(id).value = ''; });
   document.getElementById('balPreview').style.display = 'none';
   curEmp = null; curBal = null;
   renderEmpList(employees);
 }
 
-// ─── HISTORY ──────────────────────────────────────────────
+// ── HISTORY ───────────────────────────────────────────────
 async function loadHistory() {
-  const id  = document.getElementById('histEmpSel').value;
-  const tb  = document.getElementById('histBody');
+  var id = document.getElementById('histEmpSel').value;
+  var tb = document.getElementById('histBody');
   tb.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:16px;color:var(--muted)">Loading&hellip;</td></tr>';
-  const r = await api({ action:'getHistory', employeeId: id || '' });
+  var r = await api({ action:'getHistory', employeeId: id || '' });
   if (!r.success) { tb.innerHTML = '<tr><td colspan="11">Error: ' + r.message + '</td></tr>'; return; }
   histAll = r.history;
   renderHistory(histAll);
 }
 
 function filterHistory() {
-  const t = document.getElementById('histTypeSel').value;
-  renderHistory(t ? histAll.filter(h => h['Leave_Type'] === t) : histAll);
+  var t = document.getElementById('histTypeSel').value;
+  renderHistory(t ? histAll.filter(function(h) { return h['Leave_Type'] === t; }) : histAll);
 }
 
 function renderHistory(rows) {
-  const tb = document.getElementById('histBody');
+  var tb = document.getElementById('histBody');
   if (!rows.length) { tb.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-ic">&#x1F4CB;</div>No records found.</div></td></tr>'; return; }
-  tb.innerHTML = rows.map(r => {
-    const tc = (r['Leave_Type'] || '').toLowerCase();
-    const sc = (r['Status'] || '').toLowerCase().replace(/\s/g,'-');
-    const dt = r['Timestamp'] ? new Date(r['Timestamp']).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '&mdash;';
-    const vo = (r['Status'] || '').toLowerCase().includes('void');
+  tb.innerHTML = rows.map(function(r) {
+    var tc = (r['Leave_Type'] || '').toLowerCase();
+    var sc = (r['Status'] || '').toLowerCase().replace(/\s/g, '-');
+    var dt = r['Timestamp'] ? new Date(r['Timestamp']).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '&mdash;';
+    var vo = (r['Status'] || '').toLowerCase().includes('void');
     return '<tr' + (vo ? ' class="voided"' : '') + '>' +
-      '<td><code style="font-size:11px">' + (r['Log_ID'] || '&mdash;') + '</code></td>' +
+      '<td><code style="font-size:11px">' + (r['Log_ID']||'&mdash;') + '</code></td>' +
       '<td style="font-size:12px;color:var(--muted)">' + dt + '</td>' +
-      '<td><strong>' + (r['Employee_Name'] || '&mdash;') + '</strong></td>' +
-      '<td>' + (r['Department'] || '&mdash;') + '</td>' +
-      '<td><span class="bdg bdg-' + tc + '">' + (r['Leave_Type'] || '&mdash;') + '</span></td>' +
-      '<td><strong>' + parseFloat(r['Days_Requested'] || 0).toFixed(1) + '</strong></td>' +
-      '<td style="font-size:12px">' + (r['Start_Date'] || '&mdash;') + '</td>' +
-      '<td style="font-size:12px">' + (r['End_Date']   || '&mdash;') + '</td>' +
-      '<td>' + parseFloat(r['Balance_Before'] || 0).toFixed(2) + '</td>' +
-      '<td><strong>' + parseFloat(r['Balance_After'] || 0).toFixed(2) + '</strong></td>' +
-      '<td><span class="bdg bdg-' + sc + '">' + (r['Status'] || '&mdash;') + '</span></td></tr>';
+      '<td><strong>' + (r['Employee_Name']||'&mdash;') + '</strong></td>' +
+      '<td>' + (r['Department']||'&mdash;') + '</td>' +
+      '<td><span class="bdg bdg-' + tc + '">' + (r['Leave_Type']||'&mdash;') + '</span></td>' +
+      '<td><strong>' + parseFloat(r['Days_Requested']||0).toFixed(1) + '</strong></td>' +
+      '<td style="font-size:12px">' + (r['Start_Date']||'&mdash;') + '</td>' +
+      '<td style="font-size:12px">' + (r['End_Date']||'&mdash;') + '</td>' +
+      '<td>' + parseFloat(r['Balance_Before']||0).toFixed(2) + '</td>' +
+      '<td><strong>' + parseFloat(r['Balance_After']||0).toFixed(2) + '</strong></td>' +
+      '<td><span class="bdg bdg-' + sc + '">' + (r['Status']||'&mdash;') + '</span></td></tr>';
   }).join('');
 }
 
-// ─── DASHBOARD ────────────────────────────────────────────
+// ── DASHBOARD ─────────────────────────────────────────────
 async function loadDashboard() {
-  ['dTotal','dNeg','dAnn','dCas'].forEach(id => document.getElementById(id).textContent = '\u2026');
-  const r = await api({ action:'getDashboard' });
+  ['dTotal','dNeg','dAnn','dCas'].forEach(function(id) { document.getElementById(id).textContent = '\u2026'; });
+  var r = await api({ action:'getDashboard' });
   if (!r.success) return;
-  const s = r.stats;
+  var s = r.stats;
   document.getElementById('dTotal').textContent = s.totalEmployees;
   document.getElementById('dNeg').textContent   = s.negativeBalances.length;
   document.getElementById('dAnn').textContent   = s.leaveTypeTotals.Annual.toFixed(1);
   document.getElementById('dCas').textContent   = s.leaveTypeTotals.Casual.toFixed(1);
-  const nd = document.getElementById('negTable');
+  var nd = document.getElementById('negTable');
   nd.innerHTML = s.negativeBalances.length
     ? '<div class="tbl-wrap"><table><thead><tr><th>Employee</th><th>Department</th><th>Affected Types</th></tr></thead><tbody>' +
-      s.negativeBalances.map(e => '<tr><td><strong>' + e.name + '</strong></td><td>' + e.dept + '</td><td>' +
-        e.types.map(t => '<span class="bdg bdg-neg">' + t + '</span> ').join('') + '</td></tr>').join('') +
-      '</tbody></table></div>'
+      s.negativeBalances.map(function(e) {
+        return '<tr><td><strong>' + e.name + '</strong></td><td>' + e.dept + '</td><td>' + e.types.map(function(t) { return '<span class="bdg bdg-neg">' + t + '</span> '; }).join('') + '</td></tr>';
+      }).join('') + '</tbody></table></div>'
     : '<div class="empty"><div class="empty-ic">&#x2713;</div>No negative balances.</div>';
-  const rd = document.getElementById('recentTable');
+  var rd = document.getElementById('recentTable');
   rd.innerHTML = s.recentSubmissions.length
     ? '<div class="tbl-wrap"><table><thead><tr><th>Log ID</th><th>Date</th><th>Employee</th><th>Dept</th><th>Type</th><th>Days</th><th>Status</th></tr></thead><tbody>' +
-      s.recentSubmissions.map(r => {
-        const tc = (r.type||'').toLowerCase(), sc = (r.status||'').toLowerCase().replace(/\s/g,'-');
-        const dt = r.date ? new Date(r.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}) : '&mdash;';
-        return '<tr><td><code style="font-size:11px">' + r.logId + '</code></td><td style="font-size:12px;color:var(--muted)">' + dt + '</td><td>' + r.name + '</td><td>' + r.dept + '</td><td><span class="bdg bdg-' + tc + '">' + r.type + '</span></td><td>' + parseFloat(r.days||0).toFixed(1) + '</td><td><span class="bdg bdg-' + sc + '">' + r.status + '</span></td></tr>';
+      s.recentSubmissions.map(function(row) {
+        var tc = (row.type||'').toLowerCase();
+        var sc = (row.status||'').toLowerCase().replace(/\s/g, '-');
+        var dt = row.date ? new Date(row.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}) : '&mdash;';
+        return '<tr><td><code style="font-size:11px">' + row.logId + '</code></td><td style="font-size:12px;color:var(--muted)">' + dt + '</td><td>' + row.name + '</td><td>' + row.dept + '</td><td><span class="bdg bdg-' + tc + '">' + row.type + '</span></td><td>' + parseFloat(row.days||0).toFixed(1) + '</td><td><span class="bdg bdg-' + sc + '">' + row.status + '</span></td></tr>';
       }).join('') + '</tbody></table></div>'
     : '<div class="empty"><div class="empty-ic">&#x1F4CB;</div>No submissions yet.</div>';
 }
 
-
-// ─── ADJUST PIN ───────────────────────────────────────────
-function checkAdjPin() {
-  if (document.getElementById('adjPinInp').value === PIN) {
-    document.getElementById('adjPinScreen').style.display = 'none';
-    document.getElementById('adjContent').style.display   = 'block';
-  } else {
-    document.getElementById('adjPinErr').style.display = 'block';
-    document.getElementById('adjPinInp').value = '';
-    setTimeout(() => document.getElementById('adjPinErr').style.display = 'none', 3000);
-  }
-}
-
-function lockAdj() {
-  document.getElementById('adjPinScreen').style.display = 'block';
-  document.getElementById('adjContent').style.display   = 'none';
-  document.getElementById('adjPinInp').value = '';
-}
-
-
-// ─── UPLOAD PIN ───────────────────────────────────────────
-function checkUploadPin() {
-  if (document.getElementById('uploadPinInp').value === PIN) {
-    document.getElementById('uploadPinScreen').style.display = 'none';
-    document.getElementById('uploadContent').style.display   = 'block';
-  } else {
-    document.getElementById('uploadPinErr').style.display = 'block';
-    document.getElementById('uploadPinInp').value = '';
-    setTimeout(() => document.getElementById('uploadPinErr').style.display = 'none', 3000);
-  }
-}
-function lockUpload() {
-  document.getElementById('uploadPinScreen').style.display = 'block';
-  document.getElementById('uploadContent').style.display   = 'none';
-  document.getElementById('uploadPinInp').value = '';
-}
-
-// ─── UPLOAD STATE ─────────────────────────────────────────
-let uploadRows      = [];
-let uploadExisting  = [];
-let selectedFile    = null;
-
-const VALID_DEPTS = ['ADMINISTRATION, SEC & PR','ACCOUNTS & FINANCE','INTERNAL AUDIT','CHAIRLIFT & TECHNICAL','ELECTRICAL','CIVIL & CONSTRUCTION','RESTAURANT (F&B)','SALES & SERVICES','MEDIA','SAMSONS-INN RESORT','MINGORA GUEST HOUSE'];
-const VALID_TIERS = ['T1','T2','T3','T4','T5'];
-
-// ─── STEP NAV ─────────────────────────────────────────────
-function goUploadStep(n) {
-  [1,2,3].forEach(i => {
-    document.getElementById('upanel-' + i).style.display = i === n ? 'block' : 'none';
-    const s = document.getElementById('ustep' + i);
-    s.classList.toggle('active', i === n);
-    s.classList.toggle('done', i < n);
-  });
-  if (n === 3) buildUploadSummary();
-}
-
-// ─── METHOD SWITCH ────────────────────────────────────────
-function switchUploadMethod(method, btn) {
-  document.querySelectorAll('#tab-upload .cfg-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('method-file').style.display  = method === 'file'  ? 'block' : 'none';
-  document.getElementById('method-paste').style.display = method === 'paste' ? 'block' : 'none';
-}
-
-// ─── TEMPLATE DOWNLOAD ───────────────────────────────────
-function downloadTemplate() {
-  if (typeof XLSX === 'undefined') { alert('Excel library not loaded yet. Please wait a moment and try again.'); return; }
-  const wb = XLSX.utils.book_new();
-  const headers = ['Employee_ID','Name','Designation','Department','Tier','Active'];
-  const hints   = ['Leave blank for auto-assign','Full name - REQUIRED','Job title - REQUIRED','Select from list - REQUIRED','T1/T2/T3/T4/T5 - REQUIRED','Yes or No'];
-  const samples = [
-    ['','Ahmad Shah','Security Guard','ADMINISTRATION, SEC & PR','T1','Yes'],
-    ['','Zaid Islam','Electrician','ELECTRICAL','T1','Yes'],
-    ['','Sara Bibi','Customer Service Rep','SALES & SERVICES','T2','Yes'],
-  ];
-  const ws = XLSX.utils.aoa_to_sheet([headers, hints, ...samples]);
-  ws['!cols'] = [{wch:18},{wch:24},{wch:28},{wch:34},{wch:10},{wch:8}];
-  XLSX.utils.book_append_sheet(wb, ws, 'Staff Upload Template');
-  const ref = XLSX.utils.aoa_to_sheet([
-    ['Department Names','','Tier','Description'],
-    ...VALID_DEPTS.map((d,i) => [d,'',VALID_TIERS[i]||'',['General Staff','Supervisor','AM','SNR Manager','DGM'][i]||''])
-  ]);
-  XLSX.utils.book_append_sheet(wb, ref, 'Reference');
-  XLSX.writeFile(wb, 'MJSR_Staff_Upload_Template.xlsx');
-}
-
-// ─── FILE DRAG & DROP ─────────────────────────────────────
-function handleDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag-over'); }
-function handleDragLeave() { document.getElementById('dropZone').classList.remove('drag-over'); }
-function handleDrop(e) { e.preventDefault(); document.getElementById('dropZone').classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) processFileSelection(f); }
-function handleFileSelect(e) { if (e.target.files[0]) processFileSelection(e.target.files[0]); }
-
-function processFileSelection(file) {
-  if (!file.name.endsWith('.xlsx')) { showAlert('fileAlert','e','Only .xlsx files accepted. Please use the provided template.'); return; }
-  selectedFile = file;
-  document.getElementById('fileName').textContent = file.name;
-  document.getElementById('fileChip').style.display = 'inline-flex';
-  document.getElementById('parseFileBtn').disabled = false;
-  showAlert('fileAlert','s','&#x2713; File selected: ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)');
-}
-
-// ─── PARSE FILE ───────────────────────────────────────────
-async function parseFile() {
-  if (!selectedFile) return;
-  showAlert('fileAlert','i','Loading existing staff list&hellip;');
-  const existing = await api({ action:'getEmployees' });
-  uploadExisting = existing.success ? existing.employees.map(e => e.name.toLowerCase().trim()) : [];
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const wb   = XLSX.read(e.target.result, { type:'array' });
-      const ws   = wb.Sheets[wb.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
-      processRawData(data, 'fileAlert');
-    } catch(err) { showAlert('fileAlert','e','Error reading file: ' + err.message); }
-  };
-  reader.readAsArrayBuffer(selectedFile);
-}
-
-// ─── PARSE PASTE ──────────────────────────────────────────
-async function parsePaste() {
-  const text = document.getElementById('pasteArea').value.trim();
-  if (!text) { showAlert('pasteAlert','e','Please paste some data first.'); return; }
-  showAlert('pasteAlert','i','Loading existing staff list&hellip;');
-  const existing = await api({ action:'getEmployees' });
-  uploadExisting = existing.success ? existing.employees.map(e => e.name.toLowerCase().trim()) : [];
-  // Split by newlines and tabs
-  const rows = text.split('\n').map(r => r.split('\t'));
-  processRawData(rows, 'pasteAlert');
-}
-
-// ─── PROCESS RAW DATA ─────────────────────────────────────
-function processRawData(data, alertId) {
-  // Find header row
-  let headerRow = -1;
-  for (let i = 0; i < Math.min(data.length, 8); i++) {
-    const row = data[i].map(c => String(c).trim());
-    if (row.includes('Name') && row.includes('Designation')) { headerRow = i; break; }
-  }
-  if (headerRow === -1) { showAlert(alertId,'e','Could not find header row. Make sure your data has columns: Employee_ID, Name, Designation, Department, Tier, Active'); return; }
-
-  const headers = data[headerRow].map(h => String(h).trim());
-  const iID    = headers.indexOf('Employee_ID');
-  const iName  = headers.indexOf('Name');
-  const iDesig = headers.indexOf('Designation');
-  const iDept  = headers.indexOf('Department');
-  const iTier  = headers.indexOf('Tier');
-  const iAct   = headers.indexOf('Active');
-
-  if (iName === -1 || iDesig === -1 || iDept === -1 || iTier === -1) {
-    showAlert(alertId,'e','Missing required columns. Need: Name, Designation, Department, Tier'); return;
-  }
-
-  uploadRows = [];
-  let rowNum = 0;
-  for (let i = headerRow + 1; i < data.length; i++) {
-    const row   = data[i];
-    const name  = String(row[iName]  || '').trim();
-    const desig = String(row[iDesig] || '').trim();
-    const dept  = String(row[iDept]  || '').trim();
-    const tier  = String(row[iTier]  || '').trim().toUpperCase();
-    const act   = String(row[iAct]   || 'Yes').trim();
-    const empId = iID >= 0 ? String(row[iID] || '').trim() : '';
-    // Skip empty rows and hint row
-    if (!name || name.toLowerCase().includes('required') || name.toLowerCase().includes('full name')) continue;
-    rowNum++;
-    const errors = [];
-    if (!desig) errors.push('Designation required');
-    if (!dept)  errors.push('Department required');
-    else if (!VALID_DEPTS.includes(dept)) errors.push('Invalid dept: "' + dept + '"');
-    if (!tier)  errors.push('Tier required');
-    else if (!VALID_TIERS.includes(tier)) errors.push('Invalid tier (use T1-T5)');
-    const isDupe = uploadExisting.includes(name.toLowerCase());
-    uploadRows.push({ rowNum, empId, name, designation:desig, department:dept, tier, active:act||'Yes', errors, isDupe, status: isDupe?'dupe':errors.length?'error':'valid' });
-  }
-
-  if (!uploadRows.length) { showAlert(alertId,'e','No data rows found. Check your file has data below the header row.'); return; }
-  goUploadStep(2);
-  renderReview();
-}
-
-// ─── RENDER REVIEW ────────────────────────────────────────
-function renderReview() {
-  const valid  = uploadRows.filter(r => r.status==='valid');
-  const errors = uploadRows.filter(r => r.status==='error');
-  const dupes  = uploadRows.filter(r => r.status==='dupe');
-  document.getElementById('sumTotal').textContent  = uploadRows.length;
-  document.getElementById('sumValid').textContent  = valid.length;
-  document.getElementById('sumErrors').textContent = errors.length;
-  document.getElementById('sumDupes').textContent  = dupes.length;
-  const tc = {T1:'t1',T2:'t2',T3:'t3',T4:'t4',T5:'t5'};
-  const wrap = document.getElementById('reviewTable');
-  if (!uploadRows.length) { wrap.innerHTML = '<div class="empty"><div class="empty-ic">&#x1F4C4;</div>No data rows found.</div>'; document.getElementById('proceedBtn').disabled=true; return; }
-  wrap.innerHTML = '<table><thead><tr><th>#</th><th>Status</th><th>ID</th><th>Name</th><th>Designation</th><th>Department</th><th>Tier</th><th>Active</th></tr></thead><tbody>' +
-    uploadRows.map(r => {
-      const rc = r.status==='valid'?'':'row-' + (r.status==='error'?'e':'d');
-      const st = r.status==='valid'
-        ? '<span class="row-ok">&#x2713; Ready</span>'
-        : r.status==='dupe'
-        ? '<span class="row-du">&#x21BA; Duplicate</span>'
-        : '<span class="row-er">&#x2717; Error</span><div class="err-detail">' + r.errors.join(', ') + '</div>';
-      const id = r.empId || '<span style="color:var(--muted);font-size:11px">auto</span>';
-      return '<tr class="' + rc + '"><td style="color:var(--muted)">' + r.rowNum + '</td><td>' + st + '</td><td><code style="font-size:11px">' + id + '</code></td><td><strong>' + r.name + '</strong></td><td>' + r.designation + '</td><td style="font-size:12px">' + r.department + '</td><td><span class="bdg bdg-' + (tc[r.tier]||'t1') + '">' + r.tier + '</span></td><td>' + r.active + '</td></tr>';
-    }).join('') + '</tbody></table>';
-  document.getElementById('proceedBtn').disabled = valid.length === 0;
-  if (errors.length) showAlert('reviewAlert','w', errors.length + ' row(s) have errors and will be skipped.');
-  else document.getElementById('reviewAlert').innerHTML = '';
-}
-
-// ─── UPLOAD SUMMARY ───────────────────────────────────────
-function buildUploadSummary() {
-  const valid = uploadRows.filter(r => r.status==='valid');
-  document.getElementById('uploadSummary').innerHTML =
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
-    '<div style="background:var(--accent-bg);border:1px solid #86efac;border-radius:8px;padding:14px"><div style="font-size:28px;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent)">' + valid.length + '</div><div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px">Employees to be added</div></div>' +
-    '<div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:14px;max-height:120px;overflow-y:auto"><div style="font-size:12px;font-weight:600;margin-bottom:6px">Names:</div><div style="font-size:12px;color:var(--muted)">' + valid.map(r => r.name + ' (' + r.tier + ')').join('<br>') + '</div></div>' +
-    '</div>';
-}
-
-// ─── EXECUTE UPLOAD ───────────────────────────────────────
-async function executeUpload() {
-  const valid = uploadRows.filter(r => r.status==='valid');
-  if (!valid.length) return;
-  const doBtn = document.getElementById('doUploadBtn');
-  const backBtn = document.getElementById('backBtn3');
-  doBtn.disabled = true; backBtn.disabled = true;
-  document.getElementById('progSection').style.display = 'block';
-  document.getElementById('uploadFinalAlert').innerHTML = '';
-  let done = 0, failed = 0, failNames = [];
-  for (let i = 0; i < valid.length; i++) {
-    const row = valid[i];
-    updateProgress(i, valid.length, 'Uploading ' + row.name + '&hellip; (' + (i+1) + '/' + valid.length + ')');
-    const r = await api({ action:'addEmployee', name:row.name, designation:row.designation, department:row.department, tier:row.tier, active:row.active, empId:row.empId||'' });
-    if (r.success) done++; else { failed++; failNames.push(row.name); }
-    await new Promise(res => setTimeout(res, 250));
-  }
-  updateProgress(valid.length, valid.length, 'Done.');
-  if (failed === 0) {
-    showAlert('uploadFinalAlert','s','&#x2713; ' + done + ' employee(s) added successfully. Employees and Leave_Balances tabs updated.');
-  } else {
-    showAlert('uploadFinalAlert','w', done + ' added. ' + failed + ' failed: ' + failNames.join(', '));
-  }
-  doBtn.style.display   = 'none';
-  backBtn.style.display = 'none';
-  document.getElementById('startOverBtn').style.display = 'inline-flex';
-  // Refresh employee list
-  loadEmployees();
-}
-
-function updateProgress(done, total, lbl) {
-  const pct = total > 0 ? Math.round(done/total*100) : 0;
-  document.getElementById('progFill').style.width = pct + '%';
-  document.getElementById('progLbl').innerHTML = lbl;
-}
-
-function resetUpload() {
-  uploadRows = []; selectedFile = null;
-  document.getElementById('fileInp').value = '';
-  document.getElementById('fileChip').style.display = 'none';
-  document.getElementById('parseFileBtn').disabled = true;
-  document.getElementById('pasteArea').value = '';
-  document.getElementById('progSection').style.display = 'none';
-  document.getElementById('progFill').style.width = '0%';
-  ['fileAlert','pasteAlert','reviewAlert','uploadFinalAlert'].forEach(id => document.getElementById(id).innerHTML='');
-  document.getElementById('doUploadBtn').style.display    = 'inline-flex';
-  document.getElementById('doUploadBtn').disabled         = false;
-  document.getElementById('backBtn3').style.display       = 'inline-flex';
-  document.getElementById('backBtn3').disabled            = false;
-  document.getElementById('startOverBtn').style.display  = 'none';
-  goUploadStep(1);
-}
-
-// ─── ADJUST BALANCES ──────────────────────────────────────
+// ── ADJUST BALANCES ───────────────────────────────────────
 async function loadAdjBal() {
-  const id = document.getElementById('adjEmpSel').value;
-  const t  = document.getElementById('adjType').value;
+  var id = document.getElementById('adjEmpSel').value;
+  var t  = document.getElementById('adjType').value;
   if (!id || !t) return;
-  const r = await api({ action:'getBalance', employeeId:id });
+  var r = await api({ action:'getBalance', employeeId:id });
   if (r.success) document.getElementById('adjCurBal').value = parseFloat(r.balance[t] || 0).toFixed(2);
 }
 
 async function submitAdj() {
-  const id  = document.getElementById('adjEmpSel').value;
-  const t   = document.getElementById('adjType').value;
-  const nb  = parseFloat(document.getElementById('adjNewBal').value);
-  const rsn = document.getElementById('adjReason').value.trim();
-  const adm = document.getElementById('adjAdmin').value.trim();
-  if (!id||!t||isNaN(nb)||!rsn||!adm) { showAlert('adjAlert','e','Please complete all fields.'); return; }
-  const r = await api({ action:'updateBalance', employeeId:id, leaveType:t, newBalance:nb, reason:rsn, adminUser:adm });
-  showAlert('adjAlert', r.success?'s':'e', r.message);
+  var id  = document.getElementById('adjEmpSel').value;
+  var t   = document.getElementById('adjType').value;
+  var nb  = parseFloat(document.getElementById('adjNewBal').value);
+  var rsn = document.getElementById('adjReason').value.trim();
+  var adm = document.getElementById('adjAdmin').value.trim();
+  if (!id || !t || isNaN(nb) || !rsn || !adm) { showAlert('adjAlert','e','Please complete all fields.'); return; }
+  var r = await api({ action:'updateBalance', employeeId:id, leaveType:t, newBalance:nb, reason:rsn, adminUser:adm });
+  showAlert('adjAlert', r.success ? 's' : 'e', r.message);
   if (r.success) { document.getElementById('adjCurBal').value = nb.toFixed(2); document.getElementById('adjNewBal').value = ''; document.getElementById('adjReason').value = ''; }
 }
 
 function resetAdj() {
-  ['adjEmpSel','adjType','adjNewBal','adjReason','adjAdmin'].forEach(id => document.getElementById(id).value = '');
+  ['adjEmpSel','adjType','adjNewBal','adjReason','adjAdmin'].forEach(function(id) { document.getElementById(id).value = ''; });
   document.getElementById('adjCurBal').value = '';
-  document.getElementById('adjAlert').innerHTML = '';
+  clearAlert('adjAlert');
 }
 
-// ─── ADMIN PIN ────────────────────────────────────────────
-function checkAdminPin() {
-  if (document.getElementById('adminPinInp').value === PIN) {
-    adminOpen = true;
-    document.getElementById('adminPinScreen').style.display = 'none';
-    document.getElementById('adminContent').style.display   = 'block';
-    document.getElementById('adminNavBtn').classList.add('unlocked');
-    document.getElementById('adminNavBtn').textContent = '\uD83D\uDD13 Edit & Void';
-    fillSelects();
-  } else {
-    document.getElementById('adminPinErr').style.display = 'block';
-    document.getElementById('adminPinInp').value = '';
-    setTimeout(() => document.getElementById('adminPinErr').style.display = 'none', 3000);
-  }
-}
-
-function lockAdmin() {
-  adminOpen = false;
-  document.getElementById('adminPinScreen').style.display = 'block';
-  document.getElementById('adminContent').style.display   = 'none';
-  document.getElementById('adminNavBtn').classList.remove('unlocked');
-  document.getElementById('adminNavBtn').innerHTML = '&#x1F512; Edit &amp; Void';
-  document.getElementById('adminPinInp').value = '';
-}
-
-// ─── EDIT BALANCE ─────────────────────────────────────────
+// ── EDIT BALANCE ──────────────────────────────────────────
 async function loadEditBal() {
-  const id = document.getElementById('editEmpSel').value;
-  const t  = document.getElementById('editType').value;
+  var id = document.getElementById('editEmpSel').value;
+  var t  = document.getElementById('editType').value;
   document.getElementById('editNewBal').value = '';
   document.getElementById('editPreview').style.display = 'none';
   document.getElementById('editSaveBtn').disabled = true;
   if (!id || !t) return;
-  const r = await api({ action:'getBalance', employeeId:id });
+  var r = await api({ action:'getBalance', employeeId:id });
   if (r.success) document.getElementById('editCurBal').value = parseFloat(r.balance[t] || 0).toFixed(2);
 }
 
 function updateEditPreview() {
-  const cur = parseFloat(document.getElementById('editCurBal').value);
-  const nv  = parseFloat(document.getElementById('editNewBal').value);
-  const btn = document.getElementById('editSaveBtn');
-  const el  = document.getElementById('editPreview');
+  var cur = parseFloat(document.getElementById('editCurBal').value);
+  var nv  = parseFloat(document.getElementById('editNewBal').value);
+  var btn = document.getElementById('editSaveBtn');
+  var el  = document.getElementById('editPreview');
   if (isNaN(cur) || isNaN(nv)) { el.style.display = 'none'; btn.disabled = true; return; }
-  const diff = nv - cur, sign = diff >= 0 ? '+' : '';
-  document.getElementById('editPreviewTxt').textContent =
-    'Balance: ' + cur.toFixed(2) + ' \u2192 ' + nv.toFixed(2) + ' days (' + sign + diff.toFixed(2) + ' days). Fill in reason and authorised by before saving.';
+  var diff = nv - cur;
+  document.getElementById('editPreviewTxt').textContent = 'Balance: ' + cur.toFixed(2) + ' \u2192 ' + nv.toFixed(2) + ' days (' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + ' days). Fill in reason and authorised by before saving.';
   el.style.display = 'flex';
   btn.disabled = false;
 }
 
 async function submitEdit() {
-  const id  = document.getElementById('editEmpSel').value;
-  const t   = document.getElementById('editType').value;
-  const nb  = parseFloat(document.getElementById('editNewBal').value);
-  const rsn = document.getElementById('editReason').value.trim();
-  const adm = document.getElementById('editAuth').value.trim();
-  if (!id||!t||isNaN(nb)||!rsn||!adm) { showAlert('editAlert','e','All fields required.'); return; }
-  const btn = document.getElementById('editSaveBtn');
+  var id  = document.getElementById('editEmpSel').value;
+  var t   = document.getElementById('editType').value;
+  var nb  = parseFloat(document.getElementById('editNewBal').value);
+  var rsn = document.getElementById('editReason').value.trim();
+  var adm = document.getElementById('editAuth').value.trim();
+  if (!id || !t || isNaN(nb) || !rsn || !adm) { showAlert('editAlert','e','All fields required.'); return; }
+  var btn = document.getElementById('editSaveBtn');
   btn.innerHTML = '<span class="spin"></span> Saving&hellip;'; btn.disabled = true;
-  const r = await api({ action:'updateBalance', employeeId:id, leaveType:t, newBalance:nb, reason:'[EDIT CORRECTION] '+rsn, adminUser:adm });
+  var r = await api({ action:'updateBalance', employeeId:id, leaveType:t, newBalance:nb, reason:'[EDIT CORRECTION] ' + rsn, adminUser:adm });
   btn.innerHTML = 'Save Correction';
   if (r.success) {
     showAlert('editAlert','s','&#x2713; Balance corrected and logged.');
@@ -1446,43 +1201,42 @@ async function submitEdit() {
 }
 
 function resetEdit() {
-  ['editEmpSel','editType','editNewBal','editReason','editAuth'].forEach(id => document.getElementById(id).value = '');
+  ['editEmpSel','editType','editNewBal','editReason','editAuth'].forEach(function(id) { document.getElementById(id).value = ''; });
   document.getElementById('editCurBal').value = '';
   document.getElementById('editPreview').style.display = 'none';
-  document.getElementById('editAlert').innerHTML = '';
+  clearAlert('editAlert');
   document.getElementById('editSaveBtn').disabled = true;
 }
 
-// ─── VOID LOG ─────────────────────────────────────────────
+// ── VOID LOG ──────────────────────────────────────────────
 async function loadVoidLog() {
-  const id = document.getElementById('voidEmpSel').value;
-  const tb = document.getElementById('voidBody');
+  var id = document.getElementById('voidEmpSel').value;
+  var tb = document.getElementById('voidBody');
   if (!id) { tb.innerHTML = '<tr><td colspan="10"><div class="empty"><div class="empty-ic">&#x1F50D;</div>Select an employee above.</div></td></tr>'; return; }
   tb.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:16px;color:var(--muted)">Loading&hellip;</td></tr>';
-  const r = await api({ action:'getHistory', employeeId:id });
+  var r = await api({ action:'getHistory', employeeId:id });
   if (!r.success) { tb.innerHTML = '<tr><td colspan="10">Error: ' + r.message + '</td></tr>'; return; }
   voidAll = r.history;
   renderVoidLog(voidAll);
 }
 
 function filterVoidLog() {
-  const t = document.getElementById('voidTypeSel').value;
-  renderVoidLog(t ? voidAll.filter(r => r['Leave_Type'] === t) : voidAll);
+  var t = document.getElementById('voidTypeSel').value;
+  renderVoidLog(t ? voidAll.filter(function(r) { return r['Leave_Type'] === t; }) : voidAll);
 }
 
 function renderVoidLog(rows) {
-  const tb = document.getElementById('voidBody');
+  var tb = document.getElementById('voidBody');
   if (!rows.length) { tb.innerHTML = '<tr><td colspan="10"><div class="empty"><div class="empty-ic">&#x1F4CB;</div>No entries found.</div></td></tr>'; return; }
-  tb.innerHTML = rows.map(row => {
-    const tc = (row['Leave_Type'] || '').toLowerCase();
-    const st = row['Status'] || '';
-    const sc = st.toLowerCase().replace(/\s/g,'-');
-    const dt = row['Timestamp'] ? new Date(row['Timestamp']).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '&mdash;';
-    const voidable = st === 'Approved' && parseFloat(row['Days_Requested'] || 0) > 0;
-    const voided   = st.toLowerCase().includes('void');
-    const rowIdx   = voidAll.indexOf(row);
-    const actBtn   = voidable
-      ? '<button class="act-btn act-void" onclick="openVoidModal(' + rowIdx + ')">Void</button>'
+  tb.innerHTML = rows.map(function(row, idx) {
+    var tc       = (row['Leave_Type']||'').toLowerCase();
+    var st       = row['Status'] || '';
+    var sc       = st.toLowerCase().replace(/\s/g, '-');
+    var dt       = row['Timestamp'] ? new Date(row['Timestamp']).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '&mdash;';
+    var voidable = st === 'Approved' && parseFloat(row['Days_Requested']||0) > 0;
+    var voided   = st.toLowerCase().includes('void');
+    var actBtn   = voidable
+      ? '<button class="act-btn act-void" onclick="openVoidModal(' + idx + ')">Void</button>'
       : '<span class="act-btn act-dis">' + (voided ? 'Voided' : 'N/A') + '</span>';
     return '<tr' + (voided ? ' class="voided"' : '') + '>' +
       '<td><code style="font-size:11px">' + (row['Log_ID']||'&mdash;') + '</code></td>' +
@@ -1500,14 +1254,11 @@ function renderVoidLog(rows) {
 
 function openVoidModal(idx) {
   voidPending = voidAll[idx];
-  const days = parseFloat(voidPending['Days_Requested']||0).toFixed(1);
-  document.getElementById('voidConfirmMsg').textContent =
-    'Void ' + voidPending['Leave_Type'] + ' Leave of ' + days + ' day(s) for ' +
-    voidPending['Employee_Name'] + ' (Log: ' + voidPending['Log_ID'] + '). ' +
-    'The ' + days + ' day(s) will be returned to their balance and a reversal entry created.';
+  var days = parseFloat(voidPending['Days_Requested']||0).toFixed(1);
+  document.getElementById('voidConfirmMsg').textContent = 'Void ' + voidPending['Leave_Type'] + ' Leave of ' + days + ' day(s) for ' + voidPending['Employee_Name'] + ' (Log: ' + voidPending['Log_ID'] + '). The ' + days + ' day(s) will be returned to their balance and a reversal entry created.';
   document.getElementById('voidByInp').value     = '';
   document.getElementById('voidReasonInp').value = '';
-  document.getElementById('voidModalAlert').innerHTML = '';
+  clearAlert('voidModalAlert');
   document.getElementById('voidConfirmBtn').disabled  = false;
   document.getElementById('voidConfirmBtn').innerHTML = 'Yes, Void Entry';
   document.getElementById('voidModal').style.display  = 'flex';
@@ -1516,72 +1267,264 @@ function openVoidModal(idx) {
 function closeVoidModal() { document.getElementById('voidModal').style.display = 'none'; voidPending = null; }
 
 async function executeVoid() {
-  const by  = document.getElementById('voidByInp').value.trim();
-  const rsn = document.getElementById('voidReasonInp').value.trim();
+  var by  = document.getElementById('voidByInp').value.trim();
+  var rsn = document.getElementById('voidReasonInp').value.trim();
   if (!by || !rsn) { showAlert('voidModalAlert','e','Please enter your name and a reason.'); return; }
-  const btn = document.getElementById('voidConfirmBtn');
+  var btn = document.getElementById('voidConfirmBtn');
   btn.innerHTML = '<span class="spin"></span> Processing&hellip;'; btn.disabled = true;
-  const r = await api({ action:'voidLeave', logId:voidPending['Log_ID'], employeeId:voidPending['Employee_ID'], leaveType:voidPending['Leave_Type'], daysToReverse:parseFloat(voidPending['Days_Requested']||0), adminUser:by, reason:rsn });
+  var r = await api({ action:'voidLeave', logId:voidPending['Log_ID'], employeeId:voidPending['Employee_ID'], leaveType:voidPending['Leave_Type'], daysToReverse:parseFloat(voidPending['Days_Requested']||0), adminUser:by, reason:rsn });
   btn.innerHTML = 'Yes, Void Entry';
   if (r.success) { closeVoidModal(); showAlert('voidAlert','s','&#x2713; ' + r.message); loadVoidLog(); }
   else { showAlert('voidModalAlert','e','&#x2717; ' + r.message); btn.disabled = false; }
 }
 
-// ─── CONFIG PIN ───────────────────────────────────────────
-function checkCfgPin() {
-  if (document.getElementById('cfgPinInp').value === PIN) {
-    cfgOpen = true;
-    document.getElementById('cfgPinScreen').style.display = 'none';
-    document.getElementById('cfgContent').style.display   = 'block';
-    document.getElementById('configNavBtn').classList.add('unlocked');
-    loadAllCfg();
-  } else {
-    document.getElementById('cfgPinErr').style.display = 'block';
-    document.getElementById('cfgPinInp').value = '';
-    setTimeout(() => document.getElementById('cfgPinErr').style.display = 'none', 3000);
+// ── UPLOAD STAFF ──────────────────────────────────────────
+function goUploadStep(n) {
+  [1,2,3].forEach(function(i) {
+    document.getElementById('upanel-' + i).style.display = i === n ? 'block' : 'none';
+    var s = document.getElementById('ustep' + i);
+    s.classList.toggle('active', i === n);
+    s.classList.toggle('done',   i < n);
+  });
+  if (n === 3) buildUploadSummary();
+}
+
+function switchUploadMethod(method, btn) {
+  document.querySelectorAll('#tab-upload .cfg-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('method-file').style.display  = method === 'file'  ? 'block' : 'none';
+  document.getElementById('method-paste').style.display = method === 'paste' ? 'block' : 'none';
+}
+
+function downloadTemplate() {
+  if (typeof XLSX === 'undefined') { alert('Excel library loading, please wait a moment.'); return; }
+  var wb = XLSX.utils.book_new();
+  var headers = ['Employee_ID','Name','Designation','Department','Tier','Active'];
+  var hints   = ['Leave blank for auto-assign','Full name - REQUIRED','Job title - REQUIRED','Select from list - REQUIRED','T1/T2/T3/T4/T5 - REQUIRED','Yes or No'];
+  var samples = [
+    ['','Ahmad Shah','Security Guard','ADMINISTRATION, SEC & PR','T1','Yes'],
+    ['','Zaid Islam','Electrician','ELECTRICAL','T1','Yes'],
+    ['','Sara Bibi','Customer Service Rep','SALES & SERVICES','T2','Yes']
+  ];
+  var wsData = [headers, hints].concat(samples);
+  var ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = [{wch:18},{wch:24},{wch:28},{wch:34},{wch:10},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Staff Upload Template');
+  var refData = [['Department Names','','Tier','Description']].concat(
+    VALID_DEPTS.map(function(d, i) { return [d,'',VALID_TIERS[i]||'',['General Staff','Supervisor','AM','SNR Manager','DGM'][i]||'']; })
+  );
+  var wsRef = XLSX.utils.aoa_to_sheet(refData);
+  wsRef['!cols'] = [{wch:36},{wch:2},{wch:10},{wch:28}];
+  XLSX.utils.book_append_sheet(wb, wsRef, 'Reference');
+  XLSX.writeFile(wb, 'MJSR_Staff_Upload_Template.xlsx');
+}
+
+function handleDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag-over'); }
+function handleDragLeave() { document.getElementById('dropZone').classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag-over');
+  var f = e.dataTransfer.files[0];
+  if (f) processFileSelection(f);
+}
+function handleFileSelect(e) { if (e.target.files[0]) processFileSelection(e.target.files[0]); }
+
+function processFileSelection(file) {
+  if (!file.name.endsWith('.xlsx')) { showAlert('fileAlert','e','Only .xlsx files accepted.'); return; }
+  selectedFile = file;
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileChip').style.display = 'inline-flex';
+  document.getElementById('parseFileBtn').disabled = false;
+  showAlert('fileAlert','s','&#x2713; File selected: ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)');
+}
+
+async function parseFile() {
+  if (!selectedFile) return;
+  showAlert('fileAlert','i','Checking existing staff list&hellip;');
+  var existing = await api({ action:'getEmployees' });
+  uploadExisting = existing.success ? existing.employees.map(function(e) { return e.name.toLowerCase().trim(); }) : [];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb   = XLSX.read(e.target.result, { type:'array' });
+      var ws   = wb.Sheets[wb.SheetNames[0]];
+      var data = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+      processRawData(data, 'fileAlert');
+    } catch(err) { showAlert('fileAlert','e','Error reading file: ' + err.message); }
+  };
+  reader.readAsArrayBuffer(selectedFile);
+}
+
+async function parsePaste() {
+  var text = document.getElementById('pasteArea').value.trim();
+  if (!text) { showAlert('pasteAlert','e','Please paste some data first.'); return; }
+  showAlert('pasteAlert','i','Checking existing staff list&hellip;');
+  var existing = await api({ action:'getEmployees' });
+  uploadExisting = existing.success ? existing.employees.map(function(e) { return e.name.toLowerCase().trim(); }) : [];
+  var lines = text.split('\n');
+  var data  = lines.map(function(line) { return line.split('\t'); });
+  processRawData(data, 'pasteAlert');
+}
+
+function processRawData(data, alertId) {
+  var headerRow = -1;
+  for (var i = 0; i < Math.min(data.length, 8); i++) {
+    var row = data[i].map(function(c) { return String(c).trim(); });
+    if (row.indexOf('Name') !== -1 && row.indexOf('Designation') !== -1) { headerRow = i; break; }
   }
+  if (headerRow === -1) { showAlert(alertId,'e','Could not find header row. Ensure your data has columns: Employee_ID, Name, Designation, Department, Tier, Active'); return; }
+  var headers = data[headerRow].map(function(h) { return String(h).trim(); });
+  var iID    = headers.indexOf('Employee_ID');
+  var iName  = headers.indexOf('Name');
+  var iDesig = headers.indexOf('Designation');
+  var iDept  = headers.indexOf('Department');
+  var iTier  = headers.indexOf('Tier');
+  var iAct   = headers.indexOf('Active');
+  if (iName === -1 || iDesig === -1 || iDept === -1 || iTier === -1) {
+    showAlert(alertId,'e','Missing required columns. Need: Name, Designation, Department, Tier'); return;
+  }
+  uploadRows = [];
+  var rowNum = 0;
+  for (var j = headerRow + 1; j < data.length; j++) {
+    var row   = data[j];
+    var name  = String(row[iName]  || '').trim();
+    var desig = String(row[iDesig] || '').trim();
+    var dept  = String(row[iDept]  || '').trim();
+    var tier  = String(row[iTier]  || '').trim().toUpperCase();
+    var act   = String(row[iAct]   || 'Yes').trim();
+    var empId = iID >= 0 ? String(row[iID] || '').trim() : '';
+    if (!name || name.toLowerCase().includes('required') || name.toLowerCase().includes('full name')) continue;
+    rowNum++;
+    var errors = [];
+    if (!desig) errors.push('Designation required');
+    if (!dept)  errors.push('Department required');
+    else if (VALID_DEPTS.indexOf(dept) === -1) errors.push('Invalid dept: "' + dept + '"');
+    if (!tier)  errors.push('Tier required');
+    else if (VALID_TIERS.indexOf(tier) === -1) errors.push('Invalid tier (use T1-T5)');
+    var isDupe = uploadExisting.indexOf(name.toLowerCase()) !== -1;
+    uploadRows.push({ rowNum:rowNum, empId:empId, name:name, designation:desig, department:dept, tier:tier, active:act||'Yes', errors:errors, isDupe:isDupe, status: isDupe ? 'dupe' : (errors.length ? 'error' : 'valid') });
+  }
+  if (!uploadRows.length) { showAlert(alertId,'e','No data rows found. Check your file has data below the header row.'); return; }
+  goUploadStep(2);
+  renderReview();
 }
 
-function lockCfg() {
-  cfgOpen = false;
-  document.getElementById('cfgPinScreen').style.display = 'block';
-  document.getElementById('cfgContent').style.display   = 'none';
-  document.getElementById('configNavBtn').classList.remove('unlocked');
-  document.getElementById('cfgPinInp').value = '';
+function renderReview() {
+  var valid  = uploadRows.filter(function(r) { return r.status === 'valid'; });
+  var errors = uploadRows.filter(function(r) { return r.status === 'error'; });
+  var dupes  = uploadRows.filter(function(r) { return r.status === 'dupe'; });
+  document.getElementById('sumTotal').textContent  = uploadRows.length;
+  document.getElementById('sumValid').textContent  = valid.length;
+  document.getElementById('sumErrors').textContent = errors.length;
+  document.getElementById('sumDupes').textContent  = dupes.length;
+  var tc = {T1:'t1',T2:'t2',T3:'t3',T4:'t4',T5:'t5'};
+  var wrap = document.getElementById('reviewTable');
+  if (!uploadRows.length) { wrap.innerHTML = '<div class="empty"><div class="empty-ic">&#x1F4C4;</div>No data rows found.</div>'; document.getElementById('proceedBtn').disabled = true; return; }
+  wrap.innerHTML = '<table><thead><tr><th>#</th><th>Status</th><th>ID</th><th>Name</th><th>Designation</th><th>Department</th><th>Tier</th><th>Active</th></tr></thead><tbody>' +
+    uploadRows.map(function(r) {
+      var rc = r.status === 'valid' ? '' : (r.status === 'error' ? 'row-e' : 'row-d');
+      var st = r.status === 'valid'
+        ? '<span class="row-ok">&#x2713; Ready</span>'
+        : r.status === 'dupe'
+        ? '<span class="row-du">&#x21BA; Duplicate</span>'
+        : '<span class="row-er">&#x2717; Error</span><div class="err-detail">' + r.errors.join(', ') + '</div>';
+      var id = r.empId || '<span style="color:var(--muted);font-size:11px">auto</span>';
+      return '<tr class="' + rc + '"><td style="color:var(--muted)">' + r.rowNum + '</td><td>' + st + '</td><td><code style="font-size:11px">' + id + '</code></td><td><strong>' + r.name + '</strong></td><td>' + r.designation + '</td><td style="font-size:12px">' + r.department + '</td><td><span class="bdg bdg-' + (tc[r.tier]||'t1') + '">' + r.tier + '</span></td><td>' + r.active + '</td></tr>';
+    }).join('') + '</tbody></table>';
+  document.getElementById('proceedBtn').disabled = valid.length === 0;
+  if (errors.length) showAlert('reviewAlert','w', errors.length + ' row(s) have errors and will be skipped.');
+  else clearAlert('reviewAlert');
 }
 
+function buildUploadSummary() {
+  var valid = uploadRows.filter(function(r) { return r.status === 'valid'; });
+  document.getElementById('uploadSummary').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+    '<div style="background:var(--accent-bg);border:1px solid #86efac;border-radius:8px;padding:14px"><div style="font-size:28px;font-weight:700;font-family:DM Sans,sans-serif;color:var(--accent)">' + valid.length + '</div><div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px">Employees to be added</div></div>' +
+    '<div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:14px;max-height:120px;overflow-y:auto"><div style="font-size:12px;font-weight:600;margin-bottom:6px">Names:</div><div style="font-size:12px;color:var(--muted)">' + valid.map(function(r) { return r.name + ' (' + r.tier + ')'; }).join('<br>') + '</div></div>' +
+    '</div>';
+}
+
+async function executeUpload() {
+  var valid   = uploadRows.filter(function(r) { return r.status === 'valid'; });
+  if (!valid.length) return;
+  var doBtn   = document.getElementById('doUploadBtn');
+  var backBtn = document.getElementById('backBtn3');
+  doBtn.disabled   = true;
+  backBtn.disabled = true;
+  document.getElementById('progSection').style.display = 'block';
+  clearAlert('uploadFinalAlert');
+  var done = 0, failed = 0, failNames = [];
+  for (var i = 0; i < valid.length; i++) {
+    var row = valid[i];
+    document.getElementById('progFill').style.width = Math.round((i / valid.length) * 100) + '%';
+    document.getElementById('progLbl').textContent  = 'Uploading ' + row.name + '... (' + (i + 1) + '/' + valid.length + ')';
+    var r = await api({ action:'addEmployee', name:row.name, designation:row.designation, department:row.department, tier:row.tier, active:row.active, empId:row.empId || '' });
+    if (r.success) done++; else { failed++; failNames.push(row.name); }
+    await new Promise(function(res) { setTimeout(res, 250); });
+  }
+  document.getElementById('progFill').style.width = '100%';
+  document.getElementById('progLbl').textContent  = 'Done.';
+  if (failed === 0) {
+    showAlert('uploadFinalAlert','s','&#x2713; ' + done + ' employee(s) added successfully. Employees and Leave_Balances tabs updated.');
+  } else {
+    showAlert('uploadFinalAlert','w', done + ' added. ' + failed + ' failed: ' + failNames.join(', '));
+  }
+  doBtn.style.display   = 'none';
+  backBtn.style.display = 'none';
+  document.getElementById('startOverBtn').style.display = 'inline-flex';
+  loadEmployees();
+}
+
+function resetUpload() {
+  uploadRows = []; selectedFile = null;
+  document.getElementById('fileInp').value = '';
+  document.getElementById('fileChip').style.display = 'none';
+  document.getElementById('parseFileBtn').disabled  = true;
+  document.getElementById('pasteArea').value = '';
+  document.getElementById('progSection').style.display = 'none';
+  document.getElementById('progFill').style.width = '0%';
+  ['fileAlert','pasteAlert','reviewAlert','uploadFinalAlert'].forEach(function(id) { clearAlert(id); });
+  document.getElementById('doUploadBtn').style.display    = 'inline-flex';
+  document.getElementById('doUploadBtn').disabled         = false;
+  document.getElementById('backBtn3').style.display       = 'inline-flex';
+  document.getElementById('backBtn3').disabled            = false;
+  document.getElementById('startOverBtn').style.display  = 'none';
+  goUploadStep(1);
+}
+
+// ── CONFIG ────────────────────────────────────────────────
 function showCfgPanel(name, btn) {
-  document.querySelectorAll('.cfg-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.cfg-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.cfg-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.cfg-nav .cfg-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('cfgp-' + name).classList.add('active');
   btn.classList.add('active');
   if (name === 'chain') fillChainSelects();
 }
 
-async function loadAllCfg() {
-  await Promise.all([loadTiers(), loadDepts(), loadGmCfg()]);
-}
+async function loadAllCfg() { await Promise.all([loadTiers(), loadDepts(), loadGmCfg()]); }
 
-// ─── TIERS ────────────────────────────────────────────────
 async function loadTiers() {
-  const r = await api({ action:'getConfig', section:'tiers' });
+  var r = await api({ action:'getConfig', section:'tiers' });
   if (!r.success) { showAlert('tierAlert','e',r.message); return; }
   tiersData = r.data;
   renderTierTbl();
 }
 
 function renderTierTbl() {
-  const w = document.getElementById('tierTblWrap');
+  var w  = document.getElementById('tierTblWrap');
   if (!tiersData.length) { w.innerHTML = '<div class="empty"><div class="empty-ic">&#x1F4CA;</div>No tiers. Run setupConfig() in Apps Script.</div>'; return; }
-  const tc = {T1:'t1',T2:'t2',T3:'t3',T4:'t4',T5:'t5'};
-  const ab = a => a === 'GM' ? '<span class="bdg bdg-gm">GM</span>' : '<span class="bdg bdg-lm">Line Manager</span>';
+  var tc = {T1:'t1',T2:'t2',T3:'t3',T4:'t4',T5:'t5'};
+  var ab = function(a) { return a === 'GM' ? '<span class="bdg bdg-gm">GM</span>' : '<span class="bdg bdg-lm">Line Manager</span>'; };
   w.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Tier</th><th>Name</th><th>Approval</th><th>Notes</th><th>Action</th></tr></thead><tbody>' +
-    tiersData.map(t => '<tr><td><span class="bdg bdg-' + (tc[t.tierId]||'t1') + '">' + t.tierId + '</span></td><td><strong>' + t.tierName + '</strong></td><td>' + ab(t.approver) + '</td><td style="color:var(--muted);font-size:12px">' + (t.notes||'&mdash;') + '</td><td><button class="btn btn-o btn-sm" onclick="editTier(\'' + t.tierId + '\')">Edit</button></td></tr>').join('') +
-    '</tbody></table></div>';
+    tiersData.map(function(t) {
+      return '<tr><td><span class="bdg bdg-' + (tc[t.tierId]||'t1') + '">' + t.tierId + '</span></td><td><strong>' + t.tierName + '</strong></td><td>' + ab(t.approver) + '</td><td style="color:var(--muted);font-size:12px">' + (t.notes||'&mdash;') + '</td><td><button class="btn btn-o btn-sm" onclick="editTier(\'' + t.tierId + '\')">Edit</button></td></tr>';
+    }).join('') + '</tbody></table></div>';
 }
 
 function editTier(id) {
-  const t = tiersData.find(x => x.tierId === id); if (!t) return;
+  var t = tiersData.find(function(x) { return x.tierId === id; });
+  if (!t) return;
   document.getElementById('eTierId').value       = t.tierId;
   document.getElementById('eTierName').value     = t.tierName;
   document.getElementById('eTierApprover').value = t.approver;
@@ -1591,49 +1534,53 @@ function editTier(id) {
   document.getElementById('tierEditCard').scrollIntoView({behavior:'smooth'});
 }
 
-function cancelTierEdit() { document.getElementById('tierEditCard').style.display = 'none'; document.getElementById('tierFormAlert').innerHTML = ''; }
+function cancelTierEdit() { document.getElementById('tierEditCard').style.display = 'none'; clearAlert('tierFormAlert'); }
 
 async function saveTier() {
-  const p = { action:'saveConfig', section:'tier', tierId:document.getElementById('eTierId').value, tierName:document.getElementById('eTierName').value.trim(), approver:document.getElementById('eTierApprover').value, notes:document.getElementById('eTierNotes').value.trim() };
+  var p = { action:'saveConfig', section:'tier', tierId:document.getElementById('eTierId').value, tierName:document.getElementById('eTierName').value.trim(), approver:document.getElementById('eTierApprover').value, notes:document.getElementById('eTierNotes').value.trim() };
   if (!p.tierName) { showAlert('tierFormAlert','e','Tier name required.'); return; }
-  const btn = document.querySelector('#tierEditCard .btn-g');
+  var btn = document.querySelector('#tierEditCard .btn-g');
   btn.innerHTML = '<span class="spin"></span> Saving&hellip;'; btn.disabled = true;
-  const r = await api(p); btn.innerHTML = 'Save Tier'; btn.disabled = false;
-  if (r.success) { showAlert('tierFormAlert','s','&#x2713; Saved.'); await loadTiers(); setTimeout(() => { document.getElementById('tierEditCard').style.display='none'; document.getElementById('tierFormAlert').innerHTML=''; }, 1400); }
-  else showAlert('tierFormAlert','e','&#x2717; ' + r.message);
+  var r = await api(p); btn.innerHTML = 'Save Tier'; btn.disabled = false;
+  if (r.success) {
+    showAlert('tierFormAlert','s','&#x2713; Saved.');
+    await loadTiers();
+    setTimeout(function() { document.getElementById('tierEditCard').style.display = 'none'; clearAlert('tierFormAlert'); }, 1400);
+  } else showAlert('tierFormAlert','e','&#x2717; ' + r.message);
 }
 
-// ─── DEPTS ────────────────────────────────────────────────
 async function loadDepts() {
-  const r = await api({ action:'getConfig', section:'departments' });
+  var r = await api({ action:'getConfig', section:'departments' });
   if (!r.success) { showAlert('deptAlert','e',r.message); return; }
   deptsData = r.data;
   renderDeptTbl();
 }
 
 function renderDeptTbl() {
-  const w = document.getElementById('deptTblWrap');
+  var w = document.getElementById('deptTblWrap');
   if (!deptsData.length) { w.innerHTML = '<div class="empty"><div class="empty-ic">&#x1F3E2;</div>No departments found.</div>'; return; }
   w.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Department</th><th>Line Manager</th><th>LM Email</th><th>Min Mgrs</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
-    deptsData.map(d => '<tr><td><code style="font-size:11px">' + d.deptId + '</code></td><td><strong>' + d.deptName + '</strong></td><td>' + (d.lmName||'<span style="color:var(--muted)">Not set</span>') + '</td><td style="font-size:12px;color:var(--muted)">' + (d.lmEmail||'&mdash;') + '</td><td style="text-align:center">' + d.minMgrs + '</td><td><span class="bdg bdg-' + (d.active==='Yes'?'active':'inactive') + '">' + d.active + '</span></td><td>' +
-      '<button class="btn btn-o btn-sm" onclick="editDeptRow(\'' + d.deptId + '\')" style="margin-right:4px">Edit</button>' +
-      '<button class="btn btn-sm" style="background:' + (d.active==='Yes'?'var(--red-bg)':'var(--accent-bg)') + ';color:' + (d.active==='Yes'?'var(--red)':'var(--accent)') + ';border:1.5px solid ' + (d.active==='Yes'?'#fca5a5':'#86efac') + '" onclick="toggleDept(\'' + d.deptId + '\',\'' + d.active + '\')">' + (d.active==='Yes'?'Deactivate':'Activate') + '</button>' +
-      '</td></tr>').join('') + '</tbody></table></div>';
+    deptsData.map(function(d) {
+      return '<tr><td><code style="font-size:11px">' + d.deptId + '</code></td><td><strong>' + d.deptName + '</strong></td><td>' + (d.lmName||'<span style="color:var(--muted)">Not set</span>') + '</td><td style="font-size:12px;color:var(--muted)">' + (d.lmEmail||'&mdash;') + '</td><td style="text-align:center">' + d.minMgrs + '</td><td><span class="bdg bdg-' + (d.active==='Yes'?'active':'inactive') + '">' + d.active + '</span></td>' +
+        '<td><button class="btn btn-o btn-sm" onclick="editDeptRow(\'' + d.deptId + '\')" style="margin-right:4px">Edit</button>' +
+        '<button class="btn btn-sm" style="background:' + (d.active==='Yes'?'var(--red-bg)':'var(--accent-bg)') + ';color:' + (d.active==='Yes'?'var(--red)':'var(--accent)') + ';border:1.5px solid ' + (d.active==='Yes'?'#fca5a5':'#86efac') + '" onclick="toggleDept(\'' + d.deptId + '\',\'' + d.active + '\')">' + (d.active==='Yes'?'Deactivate':'Activate') + '</button></td></tr>';
+    }).join('') + '</tbody></table></div>';
 }
 
 function openDeptModal() {
   editingDept = null;
   document.getElementById('deptModalTitle').textContent = 'Add New Department';
-  ['deptId','deptName','deptLmName','deptLmEmail'].forEach(id => document.getElementById(id).value = '');
+  ['deptId','deptName','deptLmName','deptLmEmail'].forEach(function(id) { document.getElementById(id).value = ''; });
   document.getElementById('deptMinMgr').value = '2';
   document.getElementById('deptActive').value = 'Yes';
   document.getElementById('deptId').readOnly  = false;
-  document.getElementById('deptModalAlert').innerHTML = '';
-  document.getElementById('deptModal').style.display  = 'flex';
+  clearAlert('deptModalAlert');
+  document.getElementById('deptModal').style.display = 'flex';
 }
 
 function editDeptRow(id) {
-  const d = deptsData.find(x => x.deptId === id); if (!d) return;
+  var d = deptsData.find(function(x) { return x.deptId === id; });
+  if (!d) return;
   editingDept = id;
   document.getElementById('deptModalTitle').textContent = 'Edit: ' + d.deptName;
   document.getElementById('deptId').value      = d.deptId;
@@ -1643,99 +1590,101 @@ function editDeptRow(id) {
   document.getElementById('deptLmEmail').value = d.lmEmail || '';
   document.getElementById('deptMinMgr').value  = d.minMgrs;
   document.getElementById('deptActive').value  = d.active;
-  document.getElementById('deptModalAlert').innerHTML = '';
-  document.getElementById('deptModal').style.display  = 'flex';
+  clearAlert('deptModalAlert');
+  document.getElementById('deptModal').style.display = 'flex';
 }
 
 function closeDeptModal() { document.getElementById('deptModal').style.display = 'none'; editingDept = null; }
 
 async function saveDept() {
-  const p = { action:'saveConfig', section:'department', isEdit: editingDept !== null, deptId:document.getElementById('deptId').value.trim(), deptName:document.getElementById('deptName').value.trim(), lmName:document.getElementById('deptLmName').value.trim(), lmEmail:document.getElementById('deptLmEmail').value.trim(), minMgrs:document.getElementById('deptMinMgr').value, active:document.getElementById('deptActive').value };
+  var p = { action:'saveConfig', section:'department', isEdit: editingDept !== null, deptId:document.getElementById('deptId').value.trim(), deptName:document.getElementById('deptName').value.trim(), lmName:document.getElementById('deptLmName').value.trim(), lmEmail:document.getElementById('deptLmEmail').value.trim(), minMgrs:document.getElementById('deptMinMgr').value, active:document.getElementById('deptActive').value };
   if (!p.deptId || !p.deptName) { showAlert('deptModalAlert','e','ID and Name required.'); return; }
-  const btn = document.getElementById('deptSaveBtn');
+  var btn = document.getElementById('deptSaveBtn');
   btn.innerHTML = '<span class="spin"></span> Saving&hellip;'; btn.disabled = true;
-  const r = await api(p); btn.innerHTML = 'Save Department'; btn.disabled = false;
+  var r = await api(p); btn.innerHTML = 'Save Department'; btn.disabled = false;
   if (r.success) { showAlert('deptModalAlert','s','&#x2713; ' + r.message); await loadDepts(); setTimeout(closeDeptModal, 1200); }
   else showAlert('deptModalAlert','e','&#x2717; ' + r.message);
 }
 
 async function toggleDept(id, cur) {
-  const d = deptsData.find(x => x.deptId === id); if (!d) return;
-  const r = await api({ action:'saveConfig', section:'department', isEdit:true, deptId:id, deptName:d.deptName, lmName:d.lmName, lmEmail:d.lmEmail, minMgrs:d.minMgrs, active:cur==='Yes'?'No':'Yes' });
+  var d = deptsData.find(function(x) { return x.deptId === id; });
+  if (!d) return;
+  var r = await api({ action:'saveConfig', section:'department', isEdit:true, deptId:id, deptName:d.deptName, lmName:d.lmName, lmEmail:d.lmEmail, minMgrs:d.minMgrs, active:cur==='Yes'?'No':'Yes' });
   if (r.success) loadDepts(); else showAlert('deptAlert','e',r.message);
 }
 
-// ─── GM CONFIG ────────────────────────────────────────────
 async function loadGmCfg() {
-  const r = await api({ action:'getConfig', section:'gm' });
+  var r = await api({ action:'getConfig', section:'gm' });
   if (!r.success) { showAlert('gmAlert','e',r.message); return; }
   gmCfg = r.data;
-  document.getElementById('gmName').value       = gmCfg.GM_Name             || '';
-  document.getElementById('gmEmail').value      = gmCfg.GM_Email            || '';
-  document.getElementById('gmCycleDays').value  = gmCfg.Off_Day_Cycle_Days  || '6';
-  document.getElementById('gmNoticeHrs').value  = gmCfg.Off_Day_Notice_Hrs  || '24';
-  document.getElementById('gmCycleStart').value = gmCfg.Cycle_Start_Day     || '25';
-  document.getElementById('gmSysName').value    = gmCfg.System_Name         || '';
+  document.getElementById('gmName').value       = gmCfg.GM_Name            || '';
+  document.getElementById('gmEmail').value      = gmCfg.GM_Email           || '';
+  document.getElementById('gmCycleDays').value  = gmCfg.Off_Day_Cycle_Days || '6';
+  document.getElementById('gmNoticeHrs').value  = gmCfg.Off_Day_Notice_Hrs || '24';
+  document.getElementById('gmCycleStart').value = gmCfg.Cycle_Start_Day    || '25';
+  document.getElementById('gmSysName').value    = gmCfg.System_Name        || '';
   renderGmSummary();
 }
 
 async function saveGmCfg() {
-  const p = { action:'saveConfig', section:'gm', data:{ GM_Name:document.getElementById('gmName').value.trim(), GM_Email:document.getElementById('gmEmail').value.trim(), Off_Day_Cycle_Days:document.getElementById('gmCycleDays').value, Off_Day_Notice_Hrs:document.getElementById('gmNoticeHrs').value, Cycle_Start_Day:document.getElementById('gmCycleStart').value, System_Name:document.getElementById('gmSysName').value.trim() }};
+  var p = { action:'saveConfig', section:'gm', data:{ GM_Name:document.getElementById('gmName').value.trim(), GM_Email:document.getElementById('gmEmail').value.trim(), Off_Day_Cycle_Days:document.getElementById('gmCycleDays').value, Off_Day_Notice_Hrs:document.getElementById('gmNoticeHrs').value, Cycle_Start_Day:document.getElementById('gmCycleStart').value, System_Name:document.getElementById('gmSysName').value.trim() }};
   if (!p.data.GM_Email) { showAlert('gmAlert','e','GM Email is required.'); return; }
-  const btn = document.getElementById('gmSaveBtn');
+  var btn = document.getElementById('gmSaveBtn');
   btn.innerHTML = '<span class="spin"></span> Saving&hellip;'; btn.disabled = true;
-  const r = await api(p); btn.innerHTML = 'Save Settings'; btn.disabled = false;
+  var r = await api(p); btn.innerHTML = 'Save Settings'; btn.disabled = false;
   if (r.success) { showAlert('gmAlert','s','&#x2713; Settings saved.'); gmCfg = p.data; renderGmSummary(); }
   else showAlert('gmAlert','e','&#x2717; ' + r.message);
 }
 
 function renderGmSummary() {
-  const c = document.getElementById('gmSummaryCard');
+  var c = document.getElementById('gmSummaryCard');
   if (!gmCfg.GM_Name) { c.style.display = 'none'; return; }
   c.style.display = 'block';
   document.getElementById('gmSummaryContent').innerHTML =
     '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px">' +
-    [['GM Name',gmCfg.GM_Name],['GM Email',gmCfg.GM_Email],['Off Days/Cycle',(gmCfg.Off_Day_Cycle_Days||'6')+' days'],['Notice Period',(gmCfg.Off_Day_Notice_Hrs||'24')+' hours'],['Cycle Start Day',(gmCfg.Cycle_Start_Day||'25')+'th'],['System Name',gmCfg.System_Name||'&mdash;']].map(([l,v]) =>
-      '<div style="background:var(--cream);border:1px solid var(--border);border-radius:7px;padding:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600;margin-bottom:3px">' + l + '</div><div style="font-size:13px;font-weight:600">' + v + '</div></div>'
-    ).join('') + '</div>';
+    [['GM Name',gmCfg.GM_Name],['GM Email',gmCfg.GM_Email],['Off Days/Cycle',(gmCfg.Off_Day_Cycle_Days||'6')+' days'],['Notice Period',(gmCfg.Off_Day_Notice_Hrs||'24')+' hours'],['Cycle Start',(gmCfg.Cycle_Start_Day||'25')+'th'],['System Name',gmCfg.System_Name||'&mdash;']].map(function(item) {
+      return '<div style="background:var(--cream);border:1px solid var(--border);border-radius:7px;padding:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600;margin-bottom:3px">' + item[0] + '</div><div style="font-size:13px;font-weight:600">' + item[1] + '</div></div>';
+    }).join('') + '</div>';
 }
 
-// ─── APPROVAL CHAIN ───────────────────────────────────────
 function fillChainSelects() {
-  const ds = document.getElementById('chainDeptSel');
-  const ts = document.getElementById('chainTierSel');
-  const cd = ds.value, ct = ts.value;
-  ds.innerHTML = '<option value="">Select a department\u2026</option>' + deptsData.filter(d => d.active==='Yes').map(d => '<option value="' + d.deptId + '">' + d.deptName + '</option>').join('');
-  ts.innerHTML = '<option value="">All Tiers</option>' + tiersData.map(t => '<option value="' + t.tierId + '">' + t.tierName + '</option>').join('');
+  var ds = document.getElementById('chainDeptSel');
+  var ts = document.getElementById('chainTierSel');
+  var cd = ds.value, ct = ts.value;
+  ds.innerHTML = '<option value="">Select a department\u2026</option>' + deptsData.filter(function(d) { return d.active === 'Yes'; }).map(function(d) { return '<option value="' + d.deptId + '">' + d.deptName + '</option>'; }).join('');
+  ts.innerHTML = '<option value="">All Tiers</option>' + tiersData.map(function(t) { return '<option value="' + t.tierId + '">' + t.tierName + '</option>'; }).join('');
   ds.value = cd; ts.value = ct;
 }
 
 function renderChain() {
-  const deptId = document.getElementById('chainDeptSel').value;
-  const tFilt  = document.getElementById('chainTierSel').value;
-  const c      = document.getElementById('chainContainer');
+  var deptId  = document.getElementById('chainDeptSel').value;
+  var tFilt   = document.getElementById('chainTierSel').value;
+  var c       = document.getElementById('chainContainer');
   if (!deptId) { c.innerHTML = '<div class="empty"><div class="empty-ic">&#x1F517;</div>Select a department above.</div>'; return; }
-  const dept  = deptsData.find(d => d.deptId === deptId); if (!dept) return;
-  const tiers = tFilt ? tiersData.filter(t => t.tierId === tFilt) : tiersData;
-  const lmN   = dept.lmName  || 'Line Manager (not set)';
-  const lmE   = dept.lmEmail || 'Email not configured';
-  const gmN   = gmCfg.GM_Name  || 'GM (not set)';
-  const gmE   = gmCfg.GM_Email || 'Email not configured';
-  const tc    = {T1:'t1',T2:'t2',T3:'t3',T4:'t4',T5:'t5'};
-  let h = '<div class="chain-box-wrap"><div class="chain-title">Approval Chain: ' + dept.deptName + '</div>' +
+  var dept  = deptsData.find(function(d) { return d.deptId === deptId; });
+  if (!dept) return;
+  var tiers = tFilt ? tiersData.filter(function(t) { return t.tierId === tFilt; }) : tiersData;
+  var lmN   = dept.lmName  || 'Line Manager (not set)';
+  var lmE   = dept.lmEmail || 'Email not configured';
+  var gmN   = gmCfg.GM_Name  || 'GM (not set)';
+  var gmE   = gmCfg.GM_Email || 'Email not configured';
+  var tc    = {T1:'t1',T2:'t2',T3:'t3',T4:'t4',T5:'t5'};
+  var h = '<div class="chain-box-wrap"><div class="chain-title">Approval Chain: ' + dept.deptName + '</div>' +
     '<div class="chain-dept-info">' +
     '<div class="cdi-box"><div class="cdi-lbl">Line Manager</div><div class="cdi-val">' + lmN + '</div><div class="cdi-email">' + lmE + '</div></div>' +
     '<div class="cdi-box"><div class="cdi-lbl">GM Approver</div><div class="cdi-val">' + gmN + '</div><div class="cdi-email">' + gmE + '</div></div>' +
     '</div><div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">';
-  tiers.forEach(tier => {
-    const isGM = tier.approver === 'GM';
-    const aN = isGM ? gmN : lmN, aE = isGM ? gmE : lmE, aCls = isGM ? 'cb-gm' : 'cb-lm';
+  tiers.forEach(function(tier) {
+    var isGM = tier.approver === 'GM';
+    var aN   = isGM ? gmN : lmN;
+    var aE   = isGM ? gmE : lmE;
+    var aCls = isGM ? 'cb-gm' : 'cb-lm';
     h += '<div style="background:var(--snow);border:1px solid var(--border);border-radius:9px;padding:14px 18px">' +
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="bdg bdg-' + (tc[tier.tierId]||'t1') + '">' + tier.tierId + '</span><strong style="font-size:13px">' + tier.tierName + '</strong>' + (tier.notes ? '<span style="font-size:11px;color:var(--muted)">&mdash; ' + tier.notes + '</span>' : '') + '</div>' +
       '<div class="chain-flow">' +
       '<div class="chain-node"><div class="chain-box cb-staff">' + tier.tierName + '<br><span style="font-size:10px;opacity:.7">Makes request</span></div><div class="chain-lbl">Employee</div></div>' +
       '<div class="chain-arrow">&rarr;</div>' +
-      '<div class="chain-node"><div class="chain-box cb-staff">Line Manager<br><span style="font-size:10px;opacity:.7">Submits on behalf</span></div><div class="chain-lbl">Submission</div></div>' +
+      '<div class="chain-node"><div class="chain-box cb-staff">Line Manager<br><span style="font-size:10px;opacity:.7">Submits</span></div><div class="chain-lbl">Submission</div></div>' +
       '<div class="chain-arrow">&rarr;</div>' +
       '<div class="chain-node"><div class="chain-box ' + aCls + '">' + aN + '<br><span style="font-size:10px;opacity:.85">' + aE + '</span></div><div class="chain-lbl">Approver</div></div>' +
       '<div class="chain-arrow">&rarr;</div>' +
