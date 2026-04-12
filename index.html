@@ -231,6 +231,49 @@ tr.row-d td{background:var(--amber-bg)}
 .act-void:hover{background:var(--red);color:#fff}
 .act-dis{color:var(--muted);border-color:var(--border);background:var(--cream);cursor:not-allowed}
 
+
+/* ── UPLOAD TAB ── */
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:40px 28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--cream)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-bg)}
+.drop-ic{font-size:44px;margin-bottom:10px}
+.drop-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:5px}
+.drop-sub{font-size:13px;color:var(--muted)}
+.file-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;background:var(--accent-bg);border:1px solid #86efac;border-radius:20px;font-size:13px;font-weight:600;color:var(--accent);margin-top:12px}
+.paste-area{width:100%;min-height:120px;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--snow);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;outline:none;transition:border-color .15s}
+.paste-area:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(45,122,67,.1)}
+.upload-steps{display:flex;gap:0;margin-bottom:24px}
+.upload-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative}
+.upload-step:not(:last-child)::after{content:'';position:absolute;top:16px;left:calc(50% + 16px);right:calc(-50% + 16px);height:2px;background:var(--border);z-index:0}
+.upload-step:not(:last-child).done::after{background:var(--accent)}
+.step-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid var(--border);background:var(--snow);color:var(--muted);position:relative;z-index:1;transition:all .2s}
+.upload-step.active .step-num{border-color:var(--accent);background:var(--accent);color:#fff}
+.upload-step.done .step-num{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.step-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;text-align:center}
+.upload-step.active .step-lbl,.upload-step.done .step-lbl{color:var(--accent)}
+.sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.sum-card{border-radius:8px;padding:14px;border:1.5px solid transparent;text-align:center}
+.sum-total{background:var(--blue-bg);border-color:#bfdbfe}
+.sum-valid{background:var(--accent-bg);border-color:#86efac}
+.sum-error{background:var(--red-bg);border-color:#fca5a5}
+.sum-dupe{background:var(--amber-bg);border-color:#fde68a}
+.sum-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;letter-spacing:-.5px}
+.sum-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:3px}
+.prog-wrap{margin:14px 0}
+.prog-bar{height:7px;background:var(--border);border-radius:20px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:20px;transition:width .3s ease;width:0%}
+.prog-lbl{font-size:12px;color:var(--muted);margin-top:5px;text-align:center}
+tr.row-e td{background:var(--red-bg)}
+tr.row-d td{background:var(--amber-bg)}
+.row-ok{color:var(--accent);font-size:12px;font-weight:600}
+.row-er{color:var(--red);font-size:12px;font-weight:600}
+.row-du{color:var(--amber);font-size:12px;font-weight:600}
+.err-detail{font-size:11px;color:var(--red);margin-top:2px}
+.tmpl-row{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--blue-bg);border:1px solid #bfdbfe;border-radius:8px;margin-bottom:18px}
+.tmpl-icon{font-size:22px}
+.tmpl-txt{flex:1}
+.tmpl-lbl{font-size:14px;font-weight:600;color:var(--blue)}
+.tmpl-hint{font-size:12px;color:var(--muted)}
+
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
   .hdr-top{padding:0 14px}
@@ -241,6 +284,7 @@ tr.row-d td{background:var(--amber-bg)}
   .card{padding:18px}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -259,6 +303,7 @@ tr.row-d td{background:var(--amber-bg)}
     <button class="nav-btn" data-tab="adjust">Adjust Balances</button>
     <button class="nav-btn pin-btn" data-tab="admin" id="adminNavBtn">&#x1F512; Edit &amp; Void</button>
     <button class="nav-btn cfg-btn" data-tab="config" id="configNavBtn">&#x2699;&#xFE0F; Config</button>
+    <button class="nav-btn" data-tab="upload">&#x1F4E4; Upload Staff</button>
   </nav>
 </div>
 
@@ -605,6 +650,115 @@ tr.row-d td{background:var(--amber-bg)}
   </div>
 </div>
 
+
+<!-- ═══════════════════════════════ UPLOAD STAFF ═══════════════════════════════ -->
+<div id="tab-upload" class="tab">
+  <div class="sec-hdr"><div class="sec-title">&#x1F4E4; Upload Staff</div></div>
+
+  <div id="uploadPinScreen" class="card">
+    <div class="pin-screen">
+      <div class="pin-ic">&#x1F4E4;</div>
+      <div class="pin-title">Admin Access Required</div>
+      <div class="pin-sub">Enter your PIN to upload new staff</div>
+      <div class="pin-row">
+        <input type="password" id="uploadPinInp" class="pin-inp" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')checkUploadPin()">
+        <button class="btn btn-g" onclick="checkUploadPin()">Unlock</button>
+      </div>
+      <div class="pin-err" id="uploadPinErr">Incorrect PIN. Please try again.</div>
+    </div>
+  </div>
+
+  <div id="uploadContent" style="display:none">
+    <div class="lock-bar">&#x1F513; Upload Staff unlocked &nbsp;&middot;&nbsp; New employees only &mdash; existing staff are never overwritten<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="lockUpload()">Lock</button></div>
+
+    <div class="upload-steps">
+      <div class="upload-step active" id="ustep1"><div class="step-num">1</div><div class="step-lbl">Input Data</div></div>
+      <div class="upload-step" id="ustep2"><div class="step-num">2</div><div class="step-lbl">Review</div></div>
+      <div class="upload-step" id="ustep3"><div class="step-num">3</div><div class="step-lbl">Upload</div></div>
+    </div>
+
+    <div id="upanel-1">
+      <div class="card">
+        <div class="card-title">Download Template</div>
+        <div class="tmpl-row">
+          <div class="tmpl-icon">&#x1F4CB;</div>
+          <div class="tmpl-txt">
+            <div class="tmpl-lbl">MJSR_Staff_Upload_Template.xlsx</div>
+            <div class="tmpl-hint">Columns: Employee_ID (optional), Name, Designation, Department, Tier (T1-T5), Active. Delete sample rows before uploading.</div>
+          </div>
+          <button class="btn btn-b btn-sm" onclick="downloadTemplate()">&#x2B07; Download</button>
+        </div>
+        <div class="alert alert-i"><i>&#x2139;</i><span><strong>Valid Departments:</strong> ADMINISTRATION, SEC &amp; PR &nbsp;|&nbsp; ACCOUNTS &amp; FINANCE &nbsp;|&nbsp; INTERNAL AUDIT &nbsp;|&nbsp; CHAIRLIFT &amp; TECHNICAL &nbsp;|&nbsp; ELECTRICAL &nbsp;|&nbsp; CIVIL &amp; CONSTRUCTION &nbsp;|&nbsp; RESTAURANT (F&amp;B) &nbsp;|&nbsp; SALES &amp; SERVICES &nbsp;|&nbsp; MEDIA &nbsp;|&nbsp; SAMSONS-INN RESORT &nbsp;|&nbsp; MINGORA GUEST HOUSE &nbsp;&nbsp;<strong>Tiers:</strong> T1=General Staff &nbsp;T2=Supervisor &nbsp;T3=AM &nbsp;T4=SNR Manager &nbsp;T5=DGM</span></div>
+      </div>
+
+      <div class="card" style="margin-top:0">
+        <div class="cfg-nav" style="margin-bottom:20px">
+          <button class="cfg-btn active" onclick="switchUploadMethod('file',this)">&#x1F4C2; Upload Excel File</button>
+          <button class="cfg-btn" onclick="switchUploadMethod('paste',this)">&#x1F4CB; Paste from Excel</button>
+        </div>
+        <div id="method-file">
+          <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInp').click()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+            <div class="drop-ic">&#x1F4C1;</div>
+            <div class="drop-title">Click to select or drag &amp; drop</div>
+            <div class="drop-sub">Accepts .xlsx files only</div>
+            <div id="fileChip" style="display:none" class="file-chip"><span>&#x1F4C4;</span><span id="fileName"></span></div>
+          </div>
+          <input type="file" id="fileInp" style="display:none" accept=".xlsx" onchange="handleFileSelect(event)">
+          <div id="fileAlert"></div>
+          <div class="btn-row">
+            <button class="btn btn-g" id="parseFileBtn" onclick="parseFile()" disabled>Parse File &rarr;</button>
+          </div>
+        </div>
+        <div id="method-paste" style="display:none">
+          <div class="card-sub">Copy your data from Excel including the header row and paste below. Column order: <strong>Employee_ID, Name, Designation, Department, Tier, Active</strong></div>
+          <textarea id="pasteArea" class="paste-area" placeholder="Paste Excel data here (Tab-separated, include header row)..."></textarea>
+          <div id="pasteAlert"></div>
+          <div class="btn-row">
+            <button class="btn btn-g" onclick="parsePaste()">Parse Data &rarr;</button>
+            <button class="btn btn-o" onclick="document.getElementById('pasteArea').value=''">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="upanel-2" style="display:none">
+      <div class="card">
+        <div class="card-title">Review Parsed Data</div>
+        <div class="card-sub">Green rows will be uploaded. Red rows have errors and will be skipped. Amber rows are duplicates already in the system and will be skipped.</div>
+        <div class="sum-grid">
+          <div class="sum-card sum-total"><div class="sum-num" id="sumTotal" style="color:var(--blue)">0</div><div class="sum-lbl">Total Rows</div></div>
+          <div class="sum-card sum-valid"><div class="sum-num" id="sumValid" style="color:var(--accent)">0</div><div class="sum-lbl">Ready</div></div>
+          <div class="sum-card sum-error"><div class="sum-num" id="sumErrors" style="color:var(--red)">0</div><div class="sum-lbl">Errors</div></div>
+          <div class="sum-card sum-dupe"><div class="sum-num" id="sumDupes" style="color:var(--amber)">0</div><div class="sum-lbl">Duplicates</div></div>
+        </div>
+        <div id="reviewAlert"></div>
+        <div class="tbl-wrap" id="reviewTable"></div>
+        <div class="btn-row">
+          <button class="btn btn-o" onclick="goUploadStep(1)">&#x2190; Back</button>
+          <button class="btn btn-g" id="proceedBtn" onclick="goUploadStep(3)" disabled>Confirm Upload &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="upanel-3" style="display:none">
+      <div class="card">
+        <div class="card-title">Confirm &amp; Upload</div>
+        <div id="uploadSummary" style="margin-bottom:16px"></div>
+        <div class="alert alert-w"><i>&#x26A0;</i><span>Only <strong>Ready</strong> rows will be added. Errors and duplicates are excluded. Existing employees are never overwritten.</span></div>
+        <div id="progSection" style="display:none">
+          <div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="progFill"></div></div><div class="prog-lbl" id="progLbl">Uploading&hellip;</div></div>
+        </div>
+        <div id="uploadFinalAlert"></div>
+        <div class="btn-row">
+          <button class="btn btn-o" id="backBtn3" onclick="goUploadStep(2)">&#x2190; Back</button>
+          <button class="btn btn-g" id="doUploadBtn" onclick="executeUpload()">Upload to System</button>
+          <button class="btn btn-o" id="startOverBtn" style="display:none" onclick="resetUpload()">Start Over</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /main -->
 
 <!-- VOID CONFIRM MODAL -->
@@ -690,6 +844,7 @@ function navTo(tab, btn) {
   if (tab === 'dashboard') loadDashboard();
   if (['history','adjust','admin','config'].includes(tab)) fillSelects();
   if (tab === 'adjust') setTimeout(() => { if(document.getElementById('adjContent').style.display==='none') document.getElementById('adjPinInp').focus(); }, 80);
+  if (tab === 'upload') setTimeout(() => { if(document.getElementById('uploadContent').style.display==='none') document.getElementById('uploadPinInp').focus(); }, 80);
   if (tab === 'config' && cfgOpen) loadAllCfg();
   if (tab === 'config' && !cfgOpen) setTimeout(() => document.getElementById('cfgPinInp').focus(), 80);
   if (tab === 'admin'  && !adminOpen) setTimeout(() => document.getElementById('adminPinInp').focus(), 80);
@@ -938,6 +1093,259 @@ function lockAdj() {
   document.getElementById('adjPinScreen').style.display = 'block';
   document.getElementById('adjContent').style.display   = 'none';
   document.getElementById('adjPinInp').value = '';
+}
+
+
+// ─── UPLOAD PIN ───────────────────────────────────────────
+function checkUploadPin() {
+  if (document.getElementById('uploadPinInp').value === PIN) {
+    document.getElementById('uploadPinScreen').style.display = 'none';
+    document.getElementById('uploadContent').style.display   = 'block';
+  } else {
+    document.getElementById('uploadPinErr').style.display = 'block';
+    document.getElementById('uploadPinInp').value = '';
+    setTimeout(() => document.getElementById('uploadPinErr').style.display = 'none', 3000);
+  }
+}
+function lockUpload() {
+  document.getElementById('uploadPinScreen').style.display = 'block';
+  document.getElementById('uploadContent').style.display   = 'none';
+  document.getElementById('uploadPinInp').value = '';
+}
+
+// ─── UPLOAD STATE ─────────────────────────────────────────
+let uploadRows      = [];
+let uploadExisting  = [];
+let selectedFile    = null;
+
+const VALID_DEPTS = ['ADMINISTRATION, SEC & PR','ACCOUNTS & FINANCE','INTERNAL AUDIT','CHAIRLIFT & TECHNICAL','ELECTRICAL','CIVIL & CONSTRUCTION','RESTAURANT (F&B)','SALES & SERVICES','MEDIA','SAMSONS-INN RESORT','MINGORA GUEST HOUSE'];
+const VALID_TIERS = ['T1','T2','T3','T4','T5'];
+
+// ─── STEP NAV ─────────────────────────────────────────────
+function goUploadStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('upanel-' + i).style.display = i === n ? 'block' : 'none';
+    const s = document.getElementById('ustep' + i);
+    s.classList.toggle('active', i === n);
+    s.classList.toggle('done', i < n);
+  });
+  if (n === 3) buildUploadSummary();
+}
+
+// ─── METHOD SWITCH ────────────────────────────────────────
+function switchUploadMethod(method, btn) {
+  document.querySelectorAll('#tab-upload .cfg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('method-file').style.display  = method === 'file'  ? 'block' : 'none';
+  document.getElementById('method-paste').style.display = method === 'paste' ? 'block' : 'none';
+}
+
+// ─── TEMPLATE DOWNLOAD ───────────────────────────────────
+function downloadTemplate() {
+  if (typeof XLSX === 'undefined') { alert('Excel library not loaded yet. Please wait a moment and try again.'); return; }
+  const wb = XLSX.utils.book_new();
+  const headers = ['Employee_ID','Name','Designation','Department','Tier','Active'];
+  const hints   = ['Leave blank for auto-assign','Full name - REQUIRED','Job title - REQUIRED','Select from list - REQUIRED','T1/T2/T3/T4/T5 - REQUIRED','Yes or No'];
+  const samples = [
+    ['','Ahmad Shah','Security Guard','ADMINISTRATION, SEC & PR','T1','Yes'],
+    ['','Zaid Islam','Electrician','ELECTRICAL','T1','Yes'],
+    ['','Sara Bibi','Customer Service Rep','SALES & SERVICES','T2','Yes'],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet([headers, hints, ...samples]);
+  ws['!cols'] = [{wch:18},{wch:24},{wch:28},{wch:34},{wch:10},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Staff Upload Template');
+  const ref = XLSX.utils.aoa_to_sheet([
+    ['Department Names','','Tier','Description'],
+    ...VALID_DEPTS.map((d,i) => [d,'',VALID_TIERS[i]||'',['General Staff','Supervisor','AM','SNR Manager','DGM'][i]||''])
+  ]);
+  XLSX.utils.book_append_sheet(wb, ref, 'Reference');
+  XLSX.writeFile(wb, 'MJSR_Staff_Upload_Template.xlsx');
+}
+
+// ─── FILE DRAG & DROP ─────────────────────────────────────
+function handleDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag-over'); }
+function handleDragLeave() { document.getElementById('dropZone').classList.remove('drag-over'); }
+function handleDrop(e) { e.preventDefault(); document.getElementById('dropZone').classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) processFileSelection(f); }
+function handleFileSelect(e) { if (e.target.files[0]) processFileSelection(e.target.files[0]); }
+
+function processFileSelection(file) {
+  if (!file.name.endsWith('.xlsx')) { showAlert('fileAlert','e','Only .xlsx files accepted. Please use the provided template.'); return; }
+  selectedFile = file;
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileChip').style.display = 'inline-flex';
+  document.getElementById('parseFileBtn').disabled = false;
+  showAlert('fileAlert','s','&#x2713; File selected: ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)');
+}
+
+// ─── PARSE FILE ───────────────────────────────────────────
+async function parseFile() {
+  if (!selectedFile) return;
+  showAlert('fileAlert','i','Loading existing staff list&hellip;');
+  const existing = await api({ action:'getEmployees' });
+  uploadExisting = existing.success ? existing.employees.map(e => e.name.toLowerCase().trim()) : [];
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb   = XLSX.read(e.target.result, { type:'array' });
+      const ws   = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+      processRawData(data, 'fileAlert');
+    } catch(err) { showAlert('fileAlert','e','Error reading file: ' + err.message); }
+  };
+  reader.readAsArrayBuffer(selectedFile);
+}
+
+// ─── PARSE PASTE ──────────────────────────────────────────
+async function parsePaste() {
+  const text = document.getElementById('pasteArea').value.trim();
+  if (!text) { showAlert('pasteAlert','e','Please paste some data first.'); return; }
+  showAlert('pasteAlert','i','Loading existing staff list&hellip;');
+  const existing = await api({ action:'getEmployees' });
+  uploadExisting = existing.success ? existing.employees.map(e => e.name.toLowerCase().trim()) : [];
+  // Split by newlines and tabs
+  const rows = text.split('\n').map(r => r.split('\t'));
+  processRawData(rows, 'pasteAlert');
+}
+
+// ─── PROCESS RAW DATA ─────────────────────────────────────
+function processRawData(data, alertId) {
+  // Find header row
+  let headerRow = -1;
+  for (let i = 0; i < Math.min(data.length, 8); i++) {
+    const row = data[i].map(c => String(c).trim());
+    if (row.includes('Name') && row.includes('Designation')) { headerRow = i; break; }
+  }
+  if (headerRow === -1) { showAlert(alertId,'e','Could not find header row. Make sure your data has columns: Employee_ID, Name, Designation, Department, Tier, Active'); return; }
+
+  const headers = data[headerRow].map(h => String(h).trim());
+  const iID    = headers.indexOf('Employee_ID');
+  const iName  = headers.indexOf('Name');
+  const iDesig = headers.indexOf('Designation');
+  const iDept  = headers.indexOf('Department');
+  const iTier  = headers.indexOf('Tier');
+  const iAct   = headers.indexOf('Active');
+
+  if (iName === -1 || iDesig === -1 || iDept === -1 || iTier === -1) {
+    showAlert(alertId,'e','Missing required columns. Need: Name, Designation, Department, Tier'); return;
+  }
+
+  uploadRows = [];
+  let rowNum = 0;
+  for (let i = headerRow + 1; i < data.length; i++) {
+    const row   = data[i];
+    const name  = String(row[iName]  || '').trim();
+    const desig = String(row[iDesig] || '').trim();
+    const dept  = String(row[iDept]  || '').trim();
+    const tier  = String(row[iTier]  || '').trim().toUpperCase();
+    const act   = String(row[iAct]   || 'Yes').trim();
+    const empId = iID >= 0 ? String(row[iID] || '').trim() : '';
+    // Skip empty rows and hint row
+    if (!name || name.toLowerCase().includes('required') || name.toLowerCase().includes('full name')) continue;
+    rowNum++;
+    const errors = [];
+    if (!desig) errors.push('Designation required');
+    if (!dept)  errors.push('Department required');
+    else if (!VALID_DEPTS.includes(dept)) errors.push('Invalid dept: "' + dept + '"');
+    if (!tier)  errors.push('Tier required');
+    else if (!VALID_TIERS.includes(tier)) errors.push('Invalid tier (use T1-T5)');
+    const isDupe = uploadExisting.includes(name.toLowerCase());
+    uploadRows.push({ rowNum, empId, name, designation:desig, department:dept, tier, active:act||'Yes', errors, isDupe, status: isDupe?'dupe':errors.length?'error':'valid' });
+  }
+
+  if (!uploadRows.length) { showAlert(alertId,'e','No data rows found. Check your file has data below the header row.'); return; }
+  goUploadStep(2);
+  renderReview();
+}
+
+// ─── RENDER REVIEW ────────────────────────────────────────
+function renderReview() {
+  const valid  = uploadRows.filter(r => r.status==='valid');
+  const errors = uploadRows.filter(r => r.status==='error');
+  const dupes  = uploadRows.filter(r => r.status==='dupe');
+  document.getElementById('sumTotal').textContent  = uploadRows.length;
+  document.getElementById('sumValid').textContent  = valid.length;
+  document.getElementById('sumErrors').textContent = errors.length;
+  document.getElementById('sumDupes').textContent  = dupes.length;
+  const tc = {T1:'t1',T2:'t2',T3:'t3',T4:'t4',T5:'t5'};
+  const wrap = document.getElementById('reviewTable');
+  if (!uploadRows.length) { wrap.innerHTML = '<div class="empty"><div class="empty-ic">&#x1F4C4;</div>No data rows found.</div>'; document.getElementById('proceedBtn').disabled=true; return; }
+  wrap.innerHTML = '<table><thead><tr><th>#</th><th>Status</th><th>ID</th><th>Name</th><th>Designation</th><th>Department</th><th>Tier</th><th>Active</th></tr></thead><tbody>' +
+    uploadRows.map(r => {
+      const rc = r.status==='valid'?'':'row-' + (r.status==='error'?'e':'d');
+      const st = r.status==='valid'
+        ? '<span class="row-ok">&#x2713; Ready</span>'
+        : r.status==='dupe'
+        ? '<span class="row-du">&#x21BA; Duplicate</span>'
+        : '<span class="row-er">&#x2717; Error</span><div class="err-detail">' + r.errors.join(', ') + '</div>';
+      const id = r.empId || '<span style="color:var(--muted);font-size:11px">auto</span>';
+      return '<tr class="' + rc + '"><td style="color:var(--muted)">' + r.rowNum + '</td><td>' + st + '</td><td><code style="font-size:11px">' + id + '</code></td><td><strong>' + r.name + '</strong></td><td>' + r.designation + '</td><td style="font-size:12px">' + r.department + '</td><td><span class="bdg bdg-' + (tc[r.tier]||'t1') + '">' + r.tier + '</span></td><td>' + r.active + '</td></tr>';
+    }).join('') + '</tbody></table>';
+  document.getElementById('proceedBtn').disabled = valid.length === 0;
+  if (errors.length) showAlert('reviewAlert','w', errors.length + ' row(s) have errors and will be skipped.');
+  else document.getElementById('reviewAlert').innerHTML = '';
+}
+
+// ─── UPLOAD SUMMARY ───────────────────────────────────────
+function buildUploadSummary() {
+  const valid = uploadRows.filter(r => r.status==='valid');
+  document.getElementById('uploadSummary').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+    '<div style="background:var(--accent-bg);border:1px solid #86efac;border-radius:8px;padding:14px"><div style="font-size:28px;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent)">' + valid.length + '</div><div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px">Employees to be added</div></div>' +
+    '<div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:14px;max-height:120px;overflow-y:auto"><div style="font-size:12px;font-weight:600;margin-bottom:6px">Names:</div><div style="font-size:12px;color:var(--muted)">' + valid.map(r => r.name + ' (' + r.tier + ')').join('<br>') + '</div></div>' +
+    '</div>';
+}
+
+// ─── EXECUTE UPLOAD ───────────────────────────────────────
+async function executeUpload() {
+  const valid = uploadRows.filter(r => r.status==='valid');
+  if (!valid.length) return;
+  const doBtn = document.getElementById('doUploadBtn');
+  const backBtn = document.getElementById('backBtn3');
+  doBtn.disabled = true; backBtn.disabled = true;
+  document.getElementById('progSection').style.display = 'block';
+  document.getElementById('uploadFinalAlert').innerHTML = '';
+  let done = 0, failed = 0, failNames = [];
+  for (let i = 0; i < valid.length; i++) {
+    const row = valid[i];
+    updateProgress(i, valid.length, 'Uploading ' + row.name + '&hellip; (' + (i+1) + '/' + valid.length + ')');
+    const r = await api({ action:'addEmployee', name:row.name, designation:row.designation, department:row.department, tier:row.tier, active:row.active, empId:row.empId||'' });
+    if (r.success) done++; else { failed++; failNames.push(row.name); }
+    await new Promise(res => setTimeout(res, 250));
+  }
+  updateProgress(valid.length, valid.length, 'Done.');
+  if (failed === 0) {
+    showAlert('uploadFinalAlert','s','&#x2713; ' + done + ' employee(s) added successfully. Employees and Leave_Balances tabs updated.');
+  } else {
+    showAlert('uploadFinalAlert','w', done + ' added. ' + failed + ' failed: ' + failNames.join(', '));
+  }
+  doBtn.style.display   = 'none';
+  backBtn.style.display = 'none';
+  document.getElementById('startOverBtn').style.display = 'inline-flex';
+  // Refresh employee list
+  loadEmployees();
+}
+
+function updateProgress(done, total, lbl) {
+  const pct = total > 0 ? Math.round(done/total*100) : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progLbl').innerHTML = lbl;
+}
+
+function resetUpload() {
+  uploadRows = []; selectedFile = null;
+  document.getElementById('fileInp').value = '';
+  document.getElementById('fileChip').style.display = 'none';
+  document.getElementById('parseFileBtn').disabled = true;
+  document.getElementById('pasteArea').value = '';
+  document.getElementById('progSection').style.display = 'none';
+  document.getElementById('progFill').style.width = '0%';
+  ['fileAlert','pasteAlert','reviewAlert','uploadFinalAlert'].forEach(id => document.getElementById(id).innerHTML='');
+  document.getElementById('doUploadBtn').style.display    = 'inline-flex';
+  document.getElementById('doUploadBtn').disabled         = false;
+  document.getElementById('backBtn3').style.display       = 'inline-flex';
+  document.getElementById('backBtn3').disabled            = false;
+  document.getElementById('startOverBtn').style.display  = 'none';
+  goUploadStep(1);
 }
 
 // ─── ADJUST BALANCES ──────────────────────────────────────
