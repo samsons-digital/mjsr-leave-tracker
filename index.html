@@ -133,6 +133,7 @@ tr.row-d td{background:var(--amber-bg)}
 .bdg-gm{background:var(--accent);color:#fff}
 .bdg-lm{background:var(--cream);color:var(--muted);border:1px solid var(--border)}
 .bdg-neg{background:var(--red-bg);color:var(--red)}
+.bdg-monthly{background:#f0f9ff;color:#0369a1}
 
 /* ── BALANCE CARDS ── */
 .bal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
@@ -141,9 +142,10 @@ tr.row-d td{background:var(--amber-bg)}
 .bal-card.casual{background:var(--purple-bg);border-color:#e9d5ff}
 .bal-card.sick{background:var(--amber-bg);border-color:#fde68a}
 .bal-card.special{background:var(--accent-bg);border-color:#bbf7d0}
+.bal-card.monthly{background:#f0f9ff;border-color:#bae6fd}
 .bal-card.neg{background:var(--red-bg);border-color:#fecaca}
 .bal-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px}
-.bal-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;letter-spacing:-1px}
+.bal-val{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;line-height:1;letter-spacing:-.5px}
 .bal-val.neg{color:var(--red)}
 .bal-unit{font-size:10px;color:var(--muted);margin-top:2px}
 .bal-warn{margin-top:7px;padding:5px 9px;background:var(--red-bg);border:1px solid #fecaca;border-radius:5px;font-size:12px;color:var(--red);font-weight:500}
@@ -166,7 +168,7 @@ tr.row-d td{background:var(--amber-bg)}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
 .stat{background:var(--snow);border:1px solid var(--border);border-radius:9px;padding:18px}
 .stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-bottom:7px}
-.stat-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1}
+.stat-val{font-family:'DM Sans',sans-serif;font-size:32px;font-weight:700;letter-spacing:-.5px;line-height:1}
 
 /* ── SEARCH ── */
 .srch-wrap{position:relative;margin-bottom:18px}
@@ -396,6 +398,7 @@ tr.row-d td{background:var(--amber-bg)}
           <option value="Casual">Casual Leave</option>
           <option value="Sick">Sick Leave</option>
           <option value="Special">Special Occasion</option>
+          <option value="Monthly">Monthly Leave</option>
         </select>
       </div>
       <div class="fg"><label>Current Balance</label><input type="number" id="adjCurBal" readonly></div>
@@ -440,6 +443,7 @@ tr.row-d td{background:var(--amber-bg)}
             <option value="Casual">Casual Leave</option>
             <option value="Sick">Sick Leave</option>
             <option value="Special">Special Occasion</option>
+            <option value="Monthly">Monthly Leave</option>
           </select>
         </div>
         <div class="fg"><label>Current Balance</label><input type="number" id="editCurBal" readonly></div>
@@ -466,6 +470,7 @@ tr.row-d td{background:var(--amber-bg)}
             <option value="Casual">Casual</option>
             <option value="Sick">Sick</option>
             <option value="Special">Special</option>
+          <option value="Monthly">Monthly</option>
           </select>
         </div>
       </div>
@@ -746,9 +751,9 @@ async function onEmployeeSelect() {
 }
 
 function renderBal(b) {
-  const types = ['Annual','Casual','Sick','Special'];
-  const cls   = ['annual','casual','sick','special'];
-  const lbls  = ['Annual Leave','Casual Leave','Sick Leave','Special Occasion'];
+  const types = ['Annual','Casual','Sick','Special','Monthly'];
+  const cls   = ['annual','casual','sick','special','monthly'];
+  const lbls  = ['Annual Leave','Casual Leave','Sick Leave','Special Occasion','Monthly Leave'];
   let h = '', w = '';
   types.forEach((t, i) => {
     const v = parseFloat(b[t]) || 0;
