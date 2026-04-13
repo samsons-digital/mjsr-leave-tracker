@@ -121,7 +121,7 @@ tr.row-d td{background:var(--amber-bg)}
 .bal-unit{font-size:10px;color:var(--muted);margin-top:2px}
 .bal-warn{margin-top:7px;padding:5px 9px;background:var(--red-bg);border:1px solid #fecaca;border-radius:5px;font-size:12px;color:var(--red);font-weight:500}
 .emp-strip{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--cream);border-radius:7px;border:1px solid var(--border);margin-bottom:18px}
-.emp-av{width:38px;height:38px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;flex-shrink:0}
+.emp-av{width:38px;height:36px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;flex-shrink:0}
 .emp-name{font-weight:600;font-size:14px}
 .emp-meta{font-size:12px;color:var(--muted)}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spinning .7s linear infinite}
@@ -227,20 +227,20 @@ tr.row-d td{background:var(--amber-bg)}
   .card{padding:18px}
 }
 .cal-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-#tab-calendar{max-width:none;margin:0 -20px}
+.cal-full-bleed{margin:0 calc(-50vw + 50%);padding:0 20px;width:100vw;box-sizing:border-box}
 .cal-table{border-collapse:collapse;min-width:100%}
 .cal-table th,.cal-table td{border:1px solid var(--border);padding:0}
 .cal-head-emp{min-width:200px;max-width:200px;padding:8px 10px;background:var(--accent);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;position:sticky;left:0;z-index:10}
-.cal-head-day{min-width:44px;width:44px;text-align:center;padding:6px 2px;background:var(--accent);color:#fff;font-size:11px;font-weight:600}
+.cal-head-day{min-width:32px;width:32px;text-align:center;padding:6px 2px;background:var(--accent);color:#fff;font-size:11px;font-weight:600}
 .cal-head-day.today{background:#fbbf24;color:#1e3a0f;font-weight:800}
 .cal-head-day.weekend{background:var(--accent)}
 .cal-emp-cell{min-width:200px;max-width:200px;padding:7px 10px;background:var(--snow);position:sticky;left:0;z-index:5;border-right:2px solid var(--border)}
 .cal-emp-name{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-emp-dept{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cal-day-cell{min-width:44px;width:44px;height:38px;text-align:center;vertical-align:middle;background:var(--snow)}
+.cal-day-cell{min-width:32px;width:32px;height:36px;text-align:center;vertical-align:middle;background:var(--snow)}
 .cal-day-cell.weekend{background:var(--snow)}
 .cal-day-cell.today-col{background:#fef9c3;border-left:2px solid #fbbf24;border-right:2px solid #fbbf24}
-.cal-block{display:block;width:34px;height:24px;border-radius:4px;margin:0 auto;cursor:default;transition:transform .1s}
+.cal-block{display:block;width:24px;height:22px;border-radius:4px;margin:0 auto;cursor:default;transition:transform .1s}
 .cal-block:hover{transform:scale(1.2);z-index:20;position:relative}
 .cal-block.annual{background:#16a34a}
 .cal-block.casual{background:#4ade80}
@@ -496,7 +496,7 @@ tr.row-d td{background:var(--amber-bg)}
         <button class="btn btn-o" onclick="closeInlineEdit()">Cancel</button>
       </div>
     </div>
-  </div>
+  </div></div>
 </div>
 
 <!-- APPROVALS -->
@@ -773,7 +773,7 @@ tr.row-d td{background:var(--amber-bg)}
     <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#e5e7eb;border:2px dashed #9ca3af"></div>Pending</div>
     <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fee2e2;border:1px solid #fca5a5;opacity:.6"></div>Rejected</div>
   </div>
-  <div class="card" style="padding:0;overflow:hidden">
+  <div class="cal-full-bleed"><div class="card" style="padding:0;overflow:hidden">
     <div id="calContainer"><div style="text-align:center;padding:60px;color:var(--muted)">&#x1F4C5; Loading calendar...</div></div>
   </div>
 </div>
