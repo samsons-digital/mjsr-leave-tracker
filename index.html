@@ -231,21 +231,21 @@ tr.row-d td{background:var(--amber-bg)}
 .cal-table th,.cal-table td{border:1px solid var(--border);padding:0}
 .cal-head-emp{min-width:180px;max-width:180px;padding:8px 10px;background:var(--accent);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;position:sticky;left:0;z-index:10}
 .cal-head-day{min-width:34px;width:34px;text-align:center;padding:6px 2px;background:var(--accent);color:#fff;font-size:11px;font-weight:600}
-.cal-head-day.today{background:#fff;color:var(--accent)}
-.cal-head-day.weekend{background:rgba(255,255,255,.15)}
+.cal-head-day.today{background:#fbbf24;color:#1e3a0f;font-weight:800}
+.cal-head-day.weekend{background:var(--accent)}
 .cal-emp-cell{min-width:180px;max-width:180px;padding:7px 10px;background:var(--snow);position:sticky;left:0;z-index:5;border-right:2px solid var(--border)}
 .cal-emp-name{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-emp-dept{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-day-cell{min-width:34px;width:34px;height:36px;text-align:center;vertical-align:middle;background:var(--snow)}
-.cal-day-cell.weekend{background:var(--cream)}
-.cal-day-cell.today-col{background:#f0fdf4}
+.cal-day-cell.weekend{background:var(--snow)}
+.cal-day-cell.today-col{background:#fef9c3;border-left:2px solid #fbbf24;border-right:2px solid #fbbf24}
 .cal-block{display:block;width:26px;height:22px;border-radius:4px;margin:0 auto;cursor:default;transition:transform .1s}
 .cal-block:hover{transform:scale(1.2);z-index:20;position:relative}
-.cal-block.annual{background:#3b82f6}
-.cal-block.casual{background:#8b5cf6}
-.cal-block.sick{background:#f59e0b}
-.cal-block.special{background:#10b981}
-.cal-block.monthly{background:#06b6d4}
+.cal-block.annual{background:#16a34a}
+.cal-block.casual{background:#4ade80}
+.cal-block.sick{background:#86efac}
+.cal-block.special{background:#15803d}
+.cal-block.monthly{background:#bbf7d0;border:1px solid #86efac}
 .cal-block.pending{background:#e5e7eb;border:2px dashed #9ca3af}
 .cal-block.rejected{background:#fee2e2;border:1px solid #fca5a5;opacity:.5}
 .cal-controls{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
@@ -764,11 +764,11 @@ tr.row-d td{background:var(--amber-bg)}
   </div>
   <div class="cal-legend">
     <strong style="font-size:12px;color:var(--ink);margin-right:4px">Leave Types:</strong>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#3b82f6"></div>Annual</div>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#8b5cf6"></div>Casual</div>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#f59e0b"></div>Sick</div>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#10b981"></div>Special</div>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#06b6d4"></div>Monthly</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#16a34a"></div>Annual</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#4ade80"></div>Casual</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#86efac"></div>Sick</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#15803d"></div>Special</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#bbf7d0;border:1px solid #86efac"></div>Monthly</div>
     <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#e5e7eb;border:2px dashed #9ca3af"></div>Pending</div>
     <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fee2e2;border:1px solid #fca5a5;opacity:.6"></div>Rejected</div>
   </div>
@@ -877,8 +877,8 @@ function renderCalendar(){
   if(!calData)return;
   var deptFilter=document.getElementById('calDeptFilter').value;
   var days=calData.daysInMonth;
-  var today=new Date();
-  var todayDay=(today.getMonth()===calMonth&&today.getFullYear()===calYear)?today.getDate():-1;
+  var now=new Date();
+  var todayDay=(now.getMonth()===calMonth&&now.getFullYear()===calYear)?now.getDate():-1;
   var weekends=[];
   for(var d=1;d<=days;d++){var dow=new Date(calYear,calMonth,d).getDay();if(dow===0||dow===6)weekends.push(d);}
   var emps=calData.employees.filter(function(e){return !deptFilter||e.department===deptFilter;});
@@ -888,8 +888,8 @@ function renderCalendar(){
   var typeClass={Annual:'annual',Casual:'casual',Sick:'sick',Special:'special',Monthly:'monthly'};
   var headerCells='<th class="cal-head-emp">Employee</th>';
   for(var d=1;d<=days;d++){
-    var iw=weekends.indexOf(d)!==-1,it=d===todayDay;
-    headerCells+='<th class="cal-head-day'+(iw?' weekend':'')+(it?' today':'')+'">'+d+'</th>';
+    var iw=false,it=d===todayDay;
+    headerCells+='<th class="cal-head-day'+(it?' today':'')+'">'+d+'</th>';
   }
   var bodyRows='';
   var deptKeys=Object.keys(deptGroups).sort();
@@ -901,8 +901,8 @@ function renderCalendar(){
       empDays.forEach(function(entry){if(!dayMap[entry.day])dayMap[entry.day]=[];dayMap[entry.day].push(entry);});
       var cells='<td class="cal-emp-cell"><div class="cal-emp-name">'+emp.name+'</div><div class="cal-emp-dept">'+emp.designation+'</div></td>';
       for(var d=1;d<=days;d++){
-        var iw=weekends.indexOf(d)!==-1,it=d===todayDay;
-        var cls='cal-day-cell'+(iw?' weekend':'')+(it?' today-col':'');
+        var it=d===todayDay;
+        var cls='cal-day-cell'+(it?' today-col':'');
         var inner='';
         if(dayMap[d]&&dayMap[d].length>0){
           var entry=dayMap[d][0];
@@ -918,6 +918,17 @@ function renderCalendar(){
     });
   });
   document.getElementById('calContainer').innerHTML='<div class="cal-wrap"><table class="cal-table"><thead><tr>'+headerCells+'</tr></thead><tbody>'+bodyRows+'</tbody></table></div>';
+}
+
+function scheduleCalMidnightRefresh() {
+  var now = new Date();
+  var msUntilMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1).getTime() - now.getTime();
+  setTimeout(function() {
+    if (document.getElementById('tab-calendar').classList.contains('active')) {
+      renderCalendar();
+    }
+    scheduleCalMidnightRefresh();
+  }, msUntilMidnight);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -947,7 +958,7 @@ function navTo(tab, btn) {
   if (tab === 'approvals' && document.getElementById('approvContent').style.display === 'none') setTimeout(function() { document.getElementById('approvPinInp').focus(); }, 80);
   if (tab === 'upload'    && document.getElementById('uploadContent').style.display === 'none') setTimeout(function() { document.getElementById('uploadPinInp').focus(); }, 80);
   if (tab === 'config'    && cfgOpen)  loadAllCfg();
-  if (tab === 'calendar' && !calData)  loadCalendar();
+  if (tab === 'calendar' && !calData) { loadCalendar(); scheduleCalMidnightRefresh(); }
   if (tab === 'config'    && !cfgOpen) setTimeout(function() { document.getElementById('cfgPinInp').focus(); }, 80);
 }
 
