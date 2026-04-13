@@ -227,19 +227,20 @@ tr.row-d td{background:var(--amber-bg)}
   .card{padding:18px}
 }
 .cal-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#tab-calendar{max-width:none;margin:0 -20px}
 .cal-table{border-collapse:collapse;min-width:100%}
 .cal-table th,.cal-table td{border:1px solid var(--border);padding:0}
-.cal-head-emp{min-width:180px;max-width:180px;padding:8px 10px;background:var(--accent);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;position:sticky;left:0;z-index:10}
-.cal-head-day{min-width:34px;width:34px;text-align:center;padding:6px 2px;background:var(--accent);color:#fff;font-size:11px;font-weight:600}
+.cal-head-emp{min-width:200px;max-width:200px;padding:8px 10px;background:var(--accent);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;position:sticky;left:0;z-index:10}
+.cal-head-day{min-width:44px;width:44px;text-align:center;padding:6px 2px;background:var(--accent);color:#fff;font-size:11px;font-weight:600}
 .cal-head-day.today{background:#fbbf24;color:#1e3a0f;font-weight:800}
 .cal-head-day.weekend{background:var(--accent)}
-.cal-emp-cell{min-width:180px;max-width:180px;padding:7px 10px;background:var(--snow);position:sticky;left:0;z-index:5;border-right:2px solid var(--border)}
+.cal-emp-cell{min-width:200px;max-width:200px;padding:7px 10px;background:var(--snow);position:sticky;left:0;z-index:5;border-right:2px solid var(--border)}
 .cal-emp-name{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-emp-dept{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cal-day-cell{min-width:34px;width:34px;height:36px;text-align:center;vertical-align:middle;background:var(--snow)}
+.cal-day-cell{min-width:44px;width:44px;height:38px;text-align:center;vertical-align:middle;background:var(--snow)}
 .cal-day-cell.weekend{background:var(--snow)}
 .cal-day-cell.today-col{background:#fef9c3;border-left:2px solid #fbbf24;border-right:2px solid #fbbf24}
-.cal-block{display:block;width:26px;height:22px;border-radius:4px;margin:0 auto;cursor:default;transition:transform .1s}
+.cal-block{display:block;width:34px;height:24px;border-radius:4px;margin:0 auto;cursor:default;transition:transform .1s}
 .cal-block:hover{transform:scale(1.2);z-index:20;position:relative}
 .cal-block.annual{background:#16a34a}
 .cal-block.casual{background:#4ade80}
